@@ -16,8 +16,6 @@ import {
   Filter,
   Trash2,
   ExternalLink,
-  Building,
-  Car,
   Home,
   Tv,
   Smartphone,
@@ -36,6 +34,17 @@ import {
 import './App.css';
 
 const API_BASE = 'http://localhost:5000/api';
+
+// Friendly, human-readable date — turns "2024-11-24T18:30:00.000Z" into "Nov 24, 2024"
+const formatDate = (value) => {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+// Turns enum values like "Warranty_Card" / "Insurance_Policy" into "Warranty Card"
+const prettyType = (value) => (value ? String(value).replace(/_/g, ' ') : value);
 
 // Initial realistic default state (can be saved/synced to PostgreSQL)
 const initialAssets = [
@@ -579,7 +588,7 @@ export default function App() {
             <div className="brand-icon"><Layers size={24} /></div>
             <div>
               <div className="brand-title">LifeHub</div>
-              <div className="brand-tagline">Personal Life Management · LifeDesk</div>
+              <div className="brand-tagline">Your home &amp; belongings, all in one place</div>
             </div>
           </div>
 
@@ -588,8 +597,8 @@ export default function App() {
           </h2>
           <p className="auth-subtitle">
             {authMode === 'register'
-              ? 'Sign up to start tracking your assets, warranties and subscriptions.'
-              : 'Sign in to access your LifeDesk dashboard.'}
+              ? 'Sign up to start keeping track of your things, warranties and subscriptions.'
+              : 'Sign in to pick up where you left off.'}
           </p>
 
           <form onSubmit={handleAuthSubmit} className="auth-form">
@@ -655,179 +664,191 @@ export default function App() {
     );
   }
 
-  return (
-    <div className="app-container">
-      {/* Top Header with Encrypted & Database Badges */}
-      <header className="app-header">
-        <div className="header-inner">
-          <div className="brand">
-            <div className="brand-icon">
-              <Layers size={22} />
-            </div>
-            <div>
-              <div className="brand-title">LifeHub</div>
-              <div className="brand-tagline">Personal Life Management Platform · LifeDesk</div>
-            </div>
-          </div>
+  // ===== Shell helpers =====
+  const navItems = [
+    { key: 'dashboard', label: 'Home', icon: Layers },
+    { key: 'assets', label: 'My Belongings', icon: Home, count: assets.length },
+    { key: 'subscriptions', label: 'Subscriptions', icon: CreditCard, count: subscriptions.length },
+    { key: 'repairs', label: 'Repairs', icon: Wrench, count: repairs.length },
+    { key: 'documents', label: 'Documents', icon: FileText, count: documents.length },
+    { key: 'timeline', label: 'History', icon: Clock },
+    { key: 'analytics', label: 'Spending', icon: BarChart2 },
+  ];
 
-          <div className="header-badges">
-            <div className="security-pill">
-              <Lock size={13} /> End-to-End Encrypted
-            </div>
-            <div className="db-pill">
-              <Database size={13} /> {backendConnected ? 'PostgreSQL Live (Port 5432)' : 'Local Ready'}
-            </div>
-            {currentUser && (
-              <div className="user-chip">
-                <User size={14} />
-                <span>{currentUser.name || currentUser.email}</span>
-              </div>
-            )}
-            <button className="logout-btn" onClick={handleLogout} title="Sign out">
-              <ExternalLink size={14} /> Logout
-            </button>
+  const firstName = (currentUser?.name || 'there').split(' ')[0];
+  const initials = (currentUser?.name || currentUser?.email || '?')
+    .split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+
+  const pageSubtitle = {
+    dashboard: "Here's what needs you today.",
+    assets: 'Everything you own, in one place.',
+    subscriptions: 'Your plans, bills and renewals.',
+    repairs: 'Repairs and maintenance history.',
+    documents: 'Invoices, warranties and policies.',
+    timeline: 'The full story of each item.',
+    analytics: 'Where your money goes.',
+  }[activeTab] || '';
+
+  // Things that need attention (warranties ending soon, renewals due, open repairs)
+  const soon = (d) => {
+    if (!d) return false;
+    const date = new Date(d); const now = new Date();
+    return date >= now && date <= new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  };
+  const attention = [
+    ...assets.filter((a) => soon(a.warranty_expiry_date)).map((a) => ({
+      type: 'Warranty', icon: ShieldCheck, tone: 'amber', tab: 'assets',
+      title: a.name, detail: `Warranty ends ${formatDate(a.warranty_expiry_date)}`,
+    })),
+    ...subscriptions.filter((s) => soon(s.next_renewal_date)).map((s) => ({
+      type: 'Renewal', icon: CreditCard, tone: 'purple', tab: 'subscriptions',
+      title: s.name, detail: `Renews ${formatDate(s.next_renewal_date)} · $${s.cost}`,
+    })),
+    ...repairs.filter((r) => r.status !== 'Completed').map((r) => ({
+      type: 'Repair', icon: Wrench, tone: 'pink', tab: 'repairs',
+      title: r.title, detail: `${r.status} · ${r.asset_name || 'Scheduled service'}`,
+    })),
+  ];
+
+  return (
+    <div className="app-shell">
+      {/* ===== Left Sidebar ===== */}
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <div className="brand-icon"><Layers size={20} /></div>
+          <div>
+            <div className="brand-title">LifeHub</div>
+            <div className="brand-tagline">Home, organized</div>
           </div>
         </div>
-      </header>
 
-      {/* Navigation Bar Tabs */}
-      <div className="nav-tabs-wrapper">
-        <nav className="nav-tabs">
-          <button className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-            <Layers size={16} /> Action Center
-          </button>
-          <button className={`tab-btn ${activeTab === 'assets' ? 'active' : ''}`} onClick={() => setActiveTab('assets')}>
-            <Home size={16} /> Asset Inventory ({assets.length})
-          </button>
-          <button className={`tab-btn ${activeTab === 'timeline' ? 'active' : ''}`} onClick={() => setActiveTab('timeline')}>
-            <Clock size={16} /> LifeHub Smart Timeline
-          </button>
-          <button className={`tab-btn ${activeTab === 'subscriptions' ? 'active' : ''}`} onClick={() => setActiveTab('subscriptions')}>
-            <CreditCard size={16} /> SubSave ({subscriptions.length})
-          </button>
-          <button className={`tab-btn ${activeTab === 'repairs' ? 'active' : ''}`} onClick={() => setActiveTab('repairs')}>
-            <Wrench size={16} /> FixFlow ({repairs.length})
-          </button>
-          <button className={`tab-btn ${activeTab === 'documents' ? 'active' : ''}`} onClick={() => setActiveTab('documents')}>
-            <FileText size={16} /> Document Vault ({documents.length})
-          </button>
-          <button className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>
-            <BarChart2 size={16} /> Cost Analytics
-          </button>
+        <nav className="sidebar-nav">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.key}
+                className={`side-link ${activeTab === item.key ? 'active' : ''}`}
+                onClick={() => setActiveTab(item.key)}
+              >
+                <Icon size={18} />
+                <span className="side-link-label">{item.label}</span>
+                {item.count != null && <span className="side-count">{item.count}</span>}
+              </button>
+            );
+          })}
         </nav>
-      </div>
 
-      {/* Main Body */}
-      <main className="main-content">
-        
+        <div className="sidebar-footer">
+          <div className="sidebar-user">
+            <div className="avatar">{initials}</div>
+            <div className="sidebar-user-info">
+              <div className="sidebar-user-name">{currentUser?.name || 'You'}</div>
+              <div className="sidebar-user-email">{currentUser?.email}</div>
+            </div>
+          </div>
+          <button className="logout-btn full" onClick={handleLogout} title="Sign out">
+            <ExternalLink size={14} /> Sign out
+          </button>
+        </div>
+      </aside>
+
+      {/* ===== Main Column ===== */}
+      <div className="app-main">
+        <header className="topbar">
+          <div>
+            <div className="topbar-greeting">{greeting}, {firstName} 👋</div>
+            <div className="topbar-sub">{pageSubtitle}</div>
+          </div>
+          <div className="topbar-badges">
+            <div className="security-pill"><Lock size={13} /> Private &amp; secure</div>
+            <div className="db-pill">
+              <Database size={13} /> {backendConnected ? 'All changes saved' : 'Working offline'}
+            </div>
+          </div>
+        </header>
+
+        <main className="main-content">
+
         {/* ================= TAB 1: SMART ACTION CENTER (DASHBOARD) ================= */}
         {activeTab === 'dashboard' && (
           <div>
-            {/* AI Assistant Search Bar (Image 1) */}
-            <div className="ai-bar">
-              <div className="ai-bar-label">
-                <Sparkles size={16} /> AI Assistant
+            {/* ===== Needs your attention (leads the page) ===== */}
+            <section className="attention-panel">
+              <div className="attention-head">
+                <div className="attention-head-left">
+                  <div className={`attention-badge ${attention.length ? 'warn' : 'ok'}`}>
+                    {attention.length ? <AlertTriangle size={18} /> : <CheckCircle size={18} />}
+                  </div>
+                  <div>
+                    <h2 className="attention-title">
+                      {attention.length ? `${attention.length} ${attention.length === 1 ? 'thing needs' : 'things need'} your attention` : "You're all caught up"}
+                    </h2>
+                    <p className="attention-sub">
+                      {attention.length ? 'Warranties ending, renewals due and open repairs.' : 'Nothing needs you in the next 30 days. Nice.'}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <input 
-                type="text" 
-                className="ai-bar-input" 
-                placeholder="Ask me anything about your household data, documents, warranty events, or savings..." 
-              />
-              <button className="secondary-btn" style={{ border: 'none', background: 'transparent' }}>
-                <ArrowRight size={16} color="var(--primary)" />
-              </button>
-            </div>
 
-            {/* Quick Overview Category Cards (Image 1) */}
-            <div className="overview-pills">
-              <div className="overview-pill" onClick={() => setActiveTab('assets')}>
-                <div className="pill-icon blue"><Building size={20} /></div>
-                <div>
-                  <div className="pill-count">{assets.length}</div>
-                  <div className="pill-label">Assets Owned</div>
+              {attention.length > 0 && (
+                <div className="attention-list">
+                  {attention.slice(0, 5).map((item, idx) => {
+                    const Icon = item.icon;
+                    return (
+                      <button key={idx} className="attention-item" onClick={() => setActiveTab(item.tab)}>
+                        <div className={`attention-item-icon ${item.tone}`}><Icon size={16} /></div>
+                        <div className="attention-item-body">
+                          <div className="attention-item-title">{item.title}</div>
+                          <div className="attention-item-detail">{item.detail}</div>
+                        </div>
+                        <span className={`chip ${item.tone}`}>{item.type}</span>
+                        <ArrowRight size={16} className="attention-item-arrow" />
+                      </button>
+                    );
+                  })}
                 </div>
-              </div>
-              <div className="overview-pill" onClick={() => setActiveTab('assets')}>
-                <div className="pill-icon green"><Car size={20} /></div>
-                <div>
-                  <div className="pill-count">{assets.filter(a => a.category === 'Vehicles').length}</div>
-                  <div className="pill-label">Vehicles</div>
-                </div>
-              </div>
-              <div className="overview-pill" onClick={() => setActiveTab('subscriptions')}>
-                <div className="pill-icon purple"><ShieldCheck size={20} /></div>
-                <div>
-                  <div className="pill-count">{subscriptions.filter(s => s.category === 'Insurance' || s.category === 'AMC').length}</div>
-                  <div className="pill-label">Contracts / AMC</div>
-                </div>
-              </div>
-              <div className="overview-pill" onClick={() => setActiveTab('documents')}>
-                <div className="pill-icon yellow"><FileText size={20} /></div>
-                <div>
-                  <div className="pill-count">{documents.length}</div>
-                  <div className="pill-label">Vaulted Docs</div>
-                </div>
-              </div>
-              <div className="overview-pill" onClick={() => setActiveTab('repairs')}>
-                <div className="pill-icon pink"><Wrench size={20} /></div>
-                <div>
-                  <div className="pill-count">{repairs.filter(r => r.status !== 'Completed').length}</div>
-                  <div className="pill-label">Open Repairs</div>
-                </div>
-              </div>
-            </div>
+              )}
+            </section>
 
-            {/* Urgent Attention Required Banner (Image 1) */}
-            <div className="urgent-banner">
-              <div className="urgent-icon">
-                <AlertTriangle size={24} />
-              </div>
-              <div className="urgent-content">
-                <div className="urgent-title">Urgent Attention Required (2 items)</div>
-                <div className="urgent-desc">
-                  • <strong>LG French Door Refrigerator:</strong> Warranty expires in <strong>7 days</strong> (Nov 20, 2024). AMC renewal recommended.<br />
-                  • <strong>Honda City ZX Auto Insurance:</strong> Annual renewal payment of $450 due on Dec 1, 2024.
-                </div>
-              </div>
-              <button className="primary-btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }} onClick={() => setActiveTab('subscriptions')}>
-                Review Actions
-              </button>
-            </div>
-
+            {/* ===== At a glance ===== */}
+            <h3 className="block-heading">At a glance</h3>
             {/* Financial KPI Cards */}
             <div className="kpi-grid">
               <div className="kpi-card">
                 <div className="kpi-icon blue"><DollarSign size={24} /></div>
                 <div>
-                  <div className="kpi-label">Total Asset Value</div>
+                  <div className="kpi-label">What your things are worth</div>
                   <div className="kpi-value">${totalAssetValue.toLocaleString()}</div>
                 </div>
               </div>
               <div className="kpi-card">
                 <div className="kpi-icon purple"><CreditCard size={24} /></div>
                 <div>
-                  <div className="kpi-label">Monthly Commitments</div>
+                  <div className="kpi-label">Monthly spending</div>
                   <div className="kpi-value">${Math.round(monthlyRecurring)}/mo</div>
                 </div>
               </div>
               <div className="kpi-card">
                 <div className="kpi-icon emerald"><ShieldCheck size={24} /></div>
                 <div>
-                  <div className="kpi-label">Active Protected Assets</div>
+                  <div className="kpi-label">Protected items</div>
                   <div className="kpi-value">{assets.filter(a => a.status === 'Active').length} Active</div>
                 </div>
               </div>
               <div className="kpi-card">
                 <div className="kpi-icon amber"><Wrench size={24} /></div>
                 <div>
-                  <div className="kpi-label">Total Maintenance YTD</div>
+                  <div className="kpi-label">Spent on upkeep this year</div>
                   <div className="kpi-value">${totalRepairsCost}</div>
                 </div>
               </div>
             </div>
 
             {/* Two Column Layout: Upcoming Tasks (Image 7) & Quick Asset Registry */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.75rem', marginTop: '1rem' }}>
+            <div className="dash-columns">
               
               {/* Left Column: Upcoming Actions (Image 7) */}
               <div>
@@ -863,8 +884,8 @@ export default function App() {
               <div>
                 <div className="section-header">
                   <div>
-                    <h3 className="section-title">Household Belongings</h3>
-                    <p className="section-subtitle">Most valuable registered assets</p>
+                    <h3 className="section-title">Your belongings</h3>
+                    <p className="section-subtitle">Your most valuable items</p>
                   </div>
                   <button className="primary-btn" onClick={() => setShowAddAssetModal(true)}>
                     <Plus size={14} /> Add Asset
@@ -890,7 +911,7 @@ export default function App() {
                           className="secondary-btn"
                           onClick={() => { setSelectedAsset(asset); setActiveTab('timeline'); }}
                         >
-                          <Clock size={14} /> Smart Timeline
+                          <Clock size={14} /> View history
                         </button>
                       </div>
                     </div>
@@ -907,11 +928,11 @@ export default function App() {
           <div>
             <div className="section-header">
               <div>
-                <h2 className="section-title">Asset Inventory & Registry</h2>
-                <p className="section-subtitle">Manage physical appliances, electronics, vehicles, and furniture with warranty tracking.</p>
+                <h2 className="section-title">My Belongings</h2>
+                <p className="section-subtitle">Keep track of your appliances, electronics, vehicles and furniture — with warranties in one place.</p>
               </div>
               <button className="primary-btn" onClick={() => setShowAddAssetModal(true)}>
-                <Plus size={16} /> Register New Asset
+                <Plus size={16} /> Add an item
               </button>
             </div>
 
@@ -976,7 +997,7 @@ export default function App() {
                         <div><strong>Model:</strong> {asset.model_number || 'N/A'}</div>
                         <div><strong>Serial:</strong> {asset.serial_number || 'N/A'}</div>
                         <div><strong>Vendor:</strong> {asset.store_vendor || 'N/A'}</div>
-                        <div><strong>Purchased:</strong> {asset.purchase_date || 'N/A'}</div>
+                        <div><strong>Purchased:</strong> {formatDate(asset.purchase_date) || 'N/A'}</div>
                       </div>
 
                       <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.75rem' }}>
@@ -984,7 +1005,7 @@ export default function App() {
                       </div>
 
                       <div style={{ fontSize: '0.8125rem', padding: '0.5rem 0.75rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0', color: isExpiringSoon ? '#b45309' : '#475569' }}>
-                        <strong>Warranty Status:</strong> {isExpiringSoon ? '⚠️ Expiring in 7 days!' : isExpired ? 'Expired' : `Valid until ${asset.warranty_expiry_date}`}
+                        <strong>Warranty:</strong> {isExpiringSoon ? '⚠️ Expiring soon!' : isExpired ? 'Expired' : `Covered until ${formatDate(asset.warranty_expiry_date)}`}
                       </div>
                     </div>
 
@@ -993,7 +1014,7 @@ export default function App() {
                         className="secondary-btn" 
                         onClick={() => { setSelectedAsset(asset); setActiveTab('timeline'); }}
                       >
-                        <Clock size={14} /> Smart Timeline
+                        <Clock size={14} /> View history
                       </button>
                       <button 
                         className="primary-btn" 
@@ -1015,9 +1036,9 @@ export default function App() {
           <div>
             <div className="section-header">
               <div>
-                <h2 className="section-title">LifeHub Smart Timeline</h2>
+                <h2 className="section-title">History</h2>
                 <p className="section-subtitle">
-                  Unified chronological lifecycle and dynamic Total Cost of Ownership (TCO) for <strong>{selectedAsset?.name}</strong>.
+                  Everything that's happened — and the total cost so far — for <strong>{selectedAsset?.name}</strong>.
                 </p>
               </div>
 
@@ -1070,7 +1091,7 @@ export default function App() {
               <div className="timeline-item">
                 <div className="timeline-dot emerald"></div>
                 <div className="timeline-date">
-                  <Calendar size={13} /> {selectedAsset?.purchase_date || 'Purchase Date'} · <span className="badge active">Purchase Milestone</span>
+                  <Calendar size={13} /> {formatDate(selectedAsset?.purchase_date) || 'Purchase date'} · <span className="badge active">Purchased</span>
                 </div>
                 <div className="timeline-event-title">Acquired & Registered: {selectedAsset?.name}</div>
                 <div className="timeline-event-desc">
@@ -1084,11 +1105,11 @@ export default function App() {
                 <div key={idx} className="timeline-item">
                   <div className="timeline-dot"></div>
                   <div className="timeline-date">
-                    <FileText size={13} /> Document Vaulted · <span className="badge blue">{doc.document_type}</span>
+                    <FileText size={13} /> Document saved · <span className="badge blue">{prettyType(doc.document_type)}</span>
                   </div>
                   <div className="timeline-event-title">{doc.title}</div>
-                  <div className="timeline-event-desc">File: {doc.file_name} · Securely archived in LifeAdmin Vault.</div>
-                  <div className="timeline-cost" style={{ background: '#f1f5f9', color: '#475569' }}>Vault Record (No Cost)</div>
+                  <div className="timeline-event-desc">File: {doc.file_name} · Safely saved to your documents.</div>
+                  <div className="timeline-cost" style={{ background: '#f1f5f9', color: '#475569' }}>Saved (No cost)</div>
                 </div>
               ))}
 
@@ -1101,7 +1122,7 @@ export default function App() {
                   </div>
                   <div className="timeline-event-title">{sub.name}</div>
                   <div className="timeline-event-desc">
-                    Billing cadence: {sub.billing_cycle} · Next scheduled renewal: {sub.next_renewal_date}
+                    Billed {sub.billing_cycle.toLowerCase()} · Next renewal: {formatDate(sub.next_renewal_date)}
                   </div>
                   <div className="timeline-cost">+ ${sub.cost} / {sub.billing_cycle.toLowerCase()}</div>
                 </div>
@@ -1112,7 +1133,7 @@ export default function App() {
                 <div key={idx} className="timeline-item">
                   <div className="timeline-dot danger"></div>
                   <div className="timeline-date">
-                    <Wrench size={13} /> {rep.service_date || 'Service Date'} · <span className="badge warning">{rep.service_type}</span>
+                    <Wrench size={13} /> {formatDate(rep.service_date) || 'Service date'} · <span className="badge warning">{rep.service_type}</span>
                   </div>
                   <div className="timeline-event-title">{rep.title}</div>
                   <div className="timeline-event-desc">
@@ -1130,11 +1151,11 @@ export default function App() {
                 <div className="timeline-item">
                   <div className="timeline-dot amber"></div>
                   <div className="timeline-date">
-                    <ShieldCheck size={13} /> {selectedAsset.warranty_expiry_date} · <span className="badge warning">Warranty Expiration</span>
+                    <ShieldCheck size={13} /> {formatDate(selectedAsset.warranty_expiry_date)} · <span className="badge warning">Warranty ends</span>
                   </div>
                   <div className="timeline-event-title">Manufacturer Warranty Expiration Threshold</div>
                   <div className="timeline-event-desc">
-                    End of standard coverage. LifeHub alerts 30 days and 7 days prior to ensure uninterrupted AMC coverage.
+                    End of standard coverage. We'll remind you 30 days and 7 days before, so your cover never lapses.
                   </div>
                 </div>
               )}
@@ -1147,11 +1168,11 @@ export default function App() {
           <div>
             <div className="section-header">
               <div>
-                <h2 className="section-title">SubSave — Renewal & Contract Watcher</h2>
-                <p className="section-subtitle">Track recurring insurance policies, AMCs, utilities, and software services.</p>
+                <h2 className="section-title">Subscriptions &amp; Renewals</h2>
+                <p className="section-subtitle">Keep an eye on insurance, AMCs, utilities and apps — and never miss a renewal.</p>
               </div>
               <button className="primary-btn" onClick={() => setShowAddSubModal(true)}>
-                <Plus size={16} /> Add Subscription / AMC
+                <Plus size={16} /> Add a subscription
               </button>
             </div>
 
@@ -1167,10 +1188,10 @@ export default function App() {
                       ${sub.cost} <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>/{sub.billing_cycle.toLowerCase()}</span>
                     </div>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                      <strong>Linked Asset:</strong> {sub.asset_name || 'Home-Wide'}
+                      <strong>For:</strong> {sub.asset_name || 'Your whole home'}
                     </div>
                     <div style={{ fontSize: '0.85rem', color: '#b45309', fontWeight: 600 }}>
-                      Next Renewal: <strong>{sub.next_renewal_date}</strong>
+                      Next renewal: <strong>{formatDate(sub.next_renewal_date)}</strong>
                     </div>
                   </div>
                   <div className="card-footer">
@@ -1192,11 +1213,11 @@ export default function App() {
           <div>
             <div className="section-header">
               <div>
-                <h2 className="section-title">FixFlow — Repair & Maintenance Management</h2>
-                <p className="section-subtitle">Track service requests, assigned technicians, breakdown history, and repair expenses.</p>
+                <h2 className="section-title">Repairs &amp; Maintenance</h2>
+                <p className="section-subtitle">Log repairs, remember who fixed what, and see what you've spent keeping things running.</p>
               </div>
               <button className="primary-btn" onClick={() => setShowAddRepairModal(true)}>
-                <Plus size={16} /> Log Service / Repair
+                <Plus size={16} /> Log a repair
               </button>
             </div>
 
@@ -1215,7 +1236,7 @@ export default function App() {
                     </div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
                       <Calendar size={13} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-                      <strong>Service Date:</strong> {rep.service_date}
+                      <strong>Service date:</strong> {formatDate(rep.service_date)}
                     </div>
                     <div style={{ fontSize: '0.8125rem', background: '#f8fafc', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', marginBottom: '0.75rem' }}>
                       {rep.technician_notes || 'Routine maintenance performed.'}
@@ -1243,11 +1264,11 @@ export default function App() {
           <div>
             <div className="section-header">
               <div>
-                <h2 className="section-title">LifeAdmin — Document Vault</h2>
-                <p className="section-subtitle">Invoices, warranty certificates, user manuals, and insurance policies organized in one place.</p>
+                <h2 className="section-title">Documents</h2>
+                <p className="section-subtitle">Invoices, warranty cards, manuals and insurance papers — safely organized in one place.</p>
               </div>
               <button className="primary-btn" onClick={() => setShowAddDocModal(true)}>
-                <Plus size={16} /> Vault New Document
+                <Plus size={16} /> Add a document
               </button>
             </div>
 
@@ -1259,13 +1280,13 @@ export default function App() {
                       <FileText size={32} />
                     </div>
                     <div>
-                      <span className="badge blue" style={{ marginBottom: '0.35rem' }}>{doc.document_type}</span>
+                      <span className="badge blue" style={{ marginBottom: '0.35rem' }}>{prettyType(doc.document_type)}</span>
                       <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>{doc.title}</h3>
                       <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                        Linked Asset: <strong>{doc.asset_name}</strong>
+                        For: <strong>{doc.asset_name}</strong>
                       </p>
                       <p style={{ fontSize: '0.75rem', color: 'var(--text-light)', marginTop: '0.25rem' }}>
-                        File: {doc.file_name} {doc.expiry_date ? `· Expiry: ${doc.expiry_date}` : ''}
+                        File: {doc.file_name} {doc.expiry_date ? `· Expires ${formatDate(doc.expiry_date)}` : ''}
                       </p>
                     </div>
                   </div>
@@ -1286,8 +1307,8 @@ export default function App() {
           <div>
             <div className="section-header">
               <div>
-                <h2 className="section-title">Cost & Maintenance Analytics</h2>
-                <p className="section-subtitle">Track long-term maintenance costs vs recurring commitments and asset depreciation.</p>
+                <h2 className="section-title">Spending</h2>
+                <p className="section-subtitle">See where your money goes — upkeep, subscriptions and how your things hold their value.</p>
               </div>
             </div>
 
@@ -1296,21 +1317,21 @@ export default function App() {
               <div className="kpi-card">
                 <div className="kpi-icon blue"><DollarSign size={24} /></div>
                 <div>
-                  <div className="kpi-label">Total Spent On Assets</div>
+                  <div className="kpi-label">Total spent on your things</div>
                   <div className="kpi-value">${totalAssetValue.toLocaleString()}</div>
                 </div>
               </div>
               <div className="kpi-card">
                 <div className="kpi-icon purple"><CreditCard size={24} /></div>
                 <div>
-                  <div className="kpi-label">Average Monthly Commitments</div>
+                  <div className="kpi-label">Average monthly spending</div>
                   <div className="kpi-value">${Math.round(monthlyRecurring)}</div>
                 </div>
               </div>
               <div className="kpi-card">
                 <div className="kpi-icon amber"><Wrench size={24} /></div>
                 <div>
-                  <div className="kpi-label">Cumulative Maintenance</div>
+                  <div className="kpi-label">Spent on repairs</div>
                   <div className="kpi-value">${totalRepairsCost}</div>
                 </div>
               </div>
@@ -1367,7 +1388,7 @@ export default function App() {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3 className="modal-title">Register New Asset</h3>
+              <h3 className="modal-title">Add an item</h3>
               <button className="close-btn" onClick={() => setShowAddAssetModal(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleAddAsset}>
@@ -1440,7 +1461,7 @@ export default function App() {
 
               <div className="modal-actions">
                 <button type="button" className="cancel-btn" onClick={() => setShowAddAssetModal(false)}>Cancel</button>
-                <button type="submit" className="primary-btn">Save Asset to LifeHub</button>
+                <button type="submit" className="primary-btn">Save item</button>
               </div>
             </form>
           </div>
@@ -1452,7 +1473,7 @@ export default function App() {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3 className="modal-title">Add Subscription / AMC Contract</h3>
+              <h3 className="modal-title">Add a subscription</h3>
               <button className="close-btn" onClick={() => setShowAddSubModal(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleAddSub}>
@@ -1498,7 +1519,7 @@ export default function App() {
               </div>
               <div className="modal-actions">
                 <button type="button" className="cancel-btn" onClick={() => setShowAddSubModal(false)}>Cancel</button>
-                <button type="submit" className="primary-btn">Save to SubSave</button>
+                <button type="submit" className="primary-btn">Save subscription</button>
               </div>
             </form>
           </div>
@@ -1510,7 +1531,7 @@ export default function App() {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3 className="modal-title">Log Service Request / Repair (FixFlow)</h3>
+              <h3 className="modal-title">Log a repair or service</h3>
               <button className="close-btn" onClick={() => setShowAddRepairModal(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleAddRepair}>
@@ -1555,7 +1576,7 @@ export default function App() {
               </div>
               <div className="modal-actions">
                 <button type="button" className="cancel-btn" onClick={() => setShowAddRepairModal(false)}>Cancel</button>
-                <button type="submit" className="primary-btn">Record Service</button>
+                <button type="submit" className="primary-btn">Save repair</button>
               </div>
             </form>
           </div>
@@ -1567,7 +1588,7 @@ export default function App() {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3 className="modal-title">Vault Document (LifeAdmin)</h3>
+              <h3 className="modal-title">Add a document</h3>
               <button className="close-btn" onClick={() => setShowAddDocModal(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleAddDoc}>
@@ -1600,7 +1621,7 @@ export default function App() {
               </div>
               <div className="modal-actions">
                 <button type="button" className="cancel-btn" onClick={() => setShowAddDocModal(false)}>Cancel</button>
-                <button type="submit" className="primary-btn">Vault Document</button>
+                <button type="submit" className="primary-btn">Save document</button>
               </div>
             </form>
           </div>
@@ -1612,7 +1633,7 @@ export default function App() {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3 className="modal-title">Add Upcoming Action / Task</h3>
+              <h3 className="modal-title">Add a task</h3>
               <button className="close-btn" onClick={() => setShowAddTaskModal(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleAddTask}>
@@ -1640,13 +1661,14 @@ export default function App() {
               </div>
               <div className="modal-actions">
                 <button type="button" className="cancel-btn" onClick={() => setShowAddTaskModal(false)}>Cancel</button>
-                <button type="submit" className="primary-btn">Save Task</button>
+                <button type="submit" className="primary-btn">Save task</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
+      </div>
     </div>
   );
 }

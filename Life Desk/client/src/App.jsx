@@ -29,7 +29,8 @@ import {
   Phone,
   Sparkles,
   Lock,
-  Database
+  Database,
+  Mail
 } from 'lucide-react';
 import './App.css';
 
@@ -46,216 +47,16 @@ const formatDate = (value) => {
 // Turns enum values like "Warranty_Card" / "Insurance_Policy" into "Warranty Card"
 const prettyType = (value) => (value ? String(value).replace(/_/g, ' ') : value);
 
-// Initial realistic default state (can be saved/synced to PostgreSQL)
-const initialAssets = [
-  {
-    id: 'a1',
-    name: 'MacBook Pro 16" M3 Max',
-    category: 'Electronics',
-    brand: 'Apple',
-    model_number: 'A2991',
-    serial_number: 'W88401231MX',
-    purchase_date: '2024-01-15',
-    purchase_price: 2499,
-    store_vendor: 'Apple Store',
-    location_room: 'Home Office',
-    warranty_expiry_date: '2027-01-15',
-    status: 'Active',
-    notes: 'Liquid Retina XDR, 36GB RAM, 1TB SSD. Enrolled in AppleCare+.'
-  },
-  {
-    id: 'a2',
-    name: 'LG French Door Smart Refrigerator',
-    category: 'Home Appliances',
-    brand: 'LG',
-    model_number: 'LRFCS25D3S',
-    serial_number: 'LG9841203',
-    purchase_date: '2023-05-10',
-    purchase_price: 1850,
-    store_vendor: 'Best Buy',
-    location_room: 'Kitchen',
-    warranty_expiry_date: '2024-11-20',
-    status: 'Active',
-    notes: 'Dual ice maker, Wi-Fi smart diagnostics. Warranty expiring in 7 days!'
-  },
-  {
-    id: 'a3',
-    name: 'Honda City ZX CVT',
-    category: 'Vehicles',
-    brand: 'Honda',
-    model_number: '2023 ZX',
-    serial_number: 'MAK382901',
-    purchase_date: '2023-02-01',
-    purchase_price: 18000,
-    store_vendor: 'Honda Authorized Dealer',
-    location_room: 'Garage',
-    warranty_expiry_date: '2026-02-01',
-    status: 'Active',
-    notes: 'Sedan with Honda Sensing ADAS. Serviced on schedule.'
-  },
-  {
-    id: 'a4',
-    name: 'Worcester Bosch Greenstar 4000 Boiler',
-    category: 'Home Hardware',
-    brand: 'Bosch',
-    model_number: 'Greenstar 4000 25kW',
-    serial_number: 'WB-4000-882',
-    purchase_date: '2023-10-30',
-    purchase_price: 3200,
-    store_vendor: 'BOXT',
-    location_room: 'Utility Room',
-    warranty_expiry_date: '2025-10-30',
-    status: 'Active',
-    notes: 'Includes 2-year BOXT installation guarantee and CP1 Gas Safety cert.'
-  }
-];
-
-const initialSubscriptions = [
-  {
-    id: 's1',
-    name: 'Auto Comprehensive Insurance (Nationwide)',
-    category: 'Insurance',
-    cost: 450,
-    billing_cycle: 'Annually',
-    next_renewal_date: '2024-12-01',
-    asset_id: 'a3',
-    asset_name: 'Honda City ZX CVT',
-    auto_renew: true
-  },
-  {
-    id: 's2',
-    name: 'LG Extended AMC Protection',
-    category: 'AMC',
-    cost: 90,
-    billing_cycle: 'Annually',
-    next_renewal_date: '2024-11-25',
-    asset_id: 'a2',
-    asset_name: 'LG French Door Smart Refrigerator',
-    auto_renew: false
-  },
-  {
-    id: 's3',
-    name: 'Fiber Broadband 500Mbps High Speed',
-    category: 'Utility',
-    cost: 50,
-    billing_cycle: 'Monthly',
-    next_renewal_date: '2024-12-05',
-    asset_id: null,
-    asset_name: 'Home Wide',
-    auto_renew: true
-  },
-  {
-    id: 's4',
-    name: 'AppleCare+ Protection Plan',
-    category: 'AMC',
-    cost: 149,
-    billing_cycle: 'Annually',
-    next_renewal_date: '2025-01-15',
-    asset_id: 'a1',
-    asset_name: 'MacBook Pro 16" M3 Max',
-    auto_renew: true
-  }
-];
-
-const initialRepairs = [
-  {
-    id: 'r1',
-    asset_id: 'a3',
-    asset_name: 'Honda City ZX CVT',
-    title: 'Brake Pad & Rotor Replacement',
-    service_type: 'Repair',
-    status: 'Completed',
-    service_date: '2024-07-20',
-    service_provider_name: 'Honda Authorized Care',
-    labor_cost: 70,
-    parts_cost: 50,
-    total_cost: 120,
-    technician_notes: 'Replaced front ceramic brake pads and resurfaced rotors.'
-  },
-  {
-    id: 'r2',
-    asset_id: 'a2',
-    asset_name: 'LG French Door Smart Refrigerator',
-    title: 'Water Filter Replacement & Compressor Service',
-    service_type: 'Preventive',
-    status: 'Completed',
-    service_date: '2024-03-12',
-    service_provider_name: 'LG Direct Care (Maria Lopez)',
-    labor_cost: 25,
-    parts_cost: 40,
-    total_cost: 65,
-    technician_notes: 'Replaced LT1000P filter cartridge. Condenser coils vacuumed.'
-  },
-  {
-    id: 'r3',
-    asset_id: 'a4',
-    asset_name: 'Worcester Bosch Boiler',
-    title: 'Annual Gas Safety Inspection & CP1 Cert',
-    service_type: 'Inspection',
-    status: 'Scheduled',
-    service_date: '2024-11-28',
-    service_provider_name: 'BOXT Certified Tech (David Parker)',
-    labor_cost: 85,
-    parts_cost: 0,
-    total_cost: 85,
-    technician_notes: 'Technician dispatched. Slot: 10:00 AM - 12:00 PM.'
-  }
-];
-
-const initialDocuments = [
-  {
-    id: 'd1',
-    title: 'MacBook Pro Tax Invoice & Receipt',
-    document_type: 'Invoice',
-    asset_id: 'a1',
-    asset_name: 'MacBook Pro 16"',
-    file_name: 'apple-invoice-m3.pdf',
-    expiry_date: null
-  },
-  {
-    id: 'd2',
-    title: 'LG Refrigerator Warranty Card',
-    document_type: 'Warranty_Card',
-    asset_id: 'a2',
-    asset_name: 'LG French Door Refrigerator',
-    file_name: 'lg-warranty-card.pdf',
-    expiry_date: '2024-11-20'
-  },
-  {
-    id: 'd3',
-    title: 'Honda Comprehensive Insurance Policy',
-    document_type: 'Insurance_Policy',
-    asset_id: 'a3',
-    asset_name: 'Honda City ZX CVT',
-    file_name: 'honda-policy-2024.pdf',
-    expiry_date: '2024-12-01'
-  },
-  {
-    id: 'd4',
-    title: 'CP1 Gas Safety Certificate',
-    document_type: 'Manual',
-    asset_id: 'a4',
-    asset_name: 'Worcester Bosch Boiler',
-    file_name: 'cp1-gas-safety.pdf',
-    expiry_date: '2025-10-30'
-  }
-];
-
-const initialTasks = [
-  { id: 't1', room: 'Home Office', title: 'Wipe down desk & clean monitor surfaces', due: 'Due in 5 days', priority: 'Normal' },
-  { id: 't2', room: 'Kitchen', title: 'Replace LG Refrigerator water filter', due: 'Due in 2 weeks', priority: 'High' },
-  { id: 't3', room: 'Entire Home', title: 'Annual Boiler safety check with David Parker', due: 'Due Nov 28', priority: 'Urgent' },
-  { id: 't4', room: 'Garage', title: 'Honda City synthetic oil check', due: 'Due in 1 month', priority: 'Normal' }
-];
+// Data now comes exclusively from the backend (PostgreSQL) — no mock/sample data.
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [assets, setAssets] = useState(initialAssets);
-  const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
-  const [repairs, setRepairs] = useState(initialRepairs);
-  const [documents, setDocuments] = useState(initialDocuments);
-  const [tasks, setTasks] = useState(initialTasks);
-  const [selectedAsset, setSelectedAsset] = useState(initialAssets[0]);
+  const [assets, setAssets] = useState([]);
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [repairs, setRepairs] = useState([]);
+  const [documents, setDocuments] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [selectedAsset, setSelectedAsset] = useState(null);
   const [backendConnected, setBackendConnected] = useState(false);
 
   // ===== Auth state =====
@@ -263,9 +64,12 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem('ld_user')) || null; } catch { return null; }
   });
-  const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
+  const [authMode, setAuthMode] = useState('login'); // 'login' | 'register' | 'forgot' | 'reset'
   const [authForm, setAuthForm] = useState({ name: '', email: '', password: '' });
+  const [resetForm, setResetForm] = useState({ email: '', code: '', newPassword: '', confirmPassword: '' });
   const [authError, setAuthError] = useState('');
+  const [authSuccess, setAuthSuccess] = useState('');
+  const [authPreviewUrl, setAuthPreviewUrl] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -353,10 +157,10 @@ export default function App() {
             resDocs.json()
           ]);
 
-          if (dataAssets.length > 0) setAssets(dataAssets);
-          if (dataSubs.length > 0) setSubscriptions(dataSubs);
-          if (dataMaint.length > 0) setRepairs(dataMaint);
-          if (dataDocs.length > 0) setDocuments(dataDocs);
+          setAssets(Array.isArray(dataAssets) ? dataAssets : []);
+          setSubscriptions(Array.isArray(dataSubs) ? dataSubs : []);
+          setRepairs(Array.isArray(dataMaint) ? dataMaint : []);
+          setDocuments(Array.isArray(dataDocs) ? dataDocs : []);
           setBackendConnected(true);
         }
       } catch (err) {
@@ -373,6 +177,23 @@ export default function App() {
       setSelectedAsset(assets[0]);
     }
   }, [assets, selectedAsset]);
+
+  // Check URL parameters for password reset link
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const emailParam = params.get('email');
+      const codeParam = params.get('code');
+      if (emailParam || codeParam) {
+        setAuthMode('reset');
+        setResetForm(prev => ({
+          ...prev,
+          email: emailParam || prev.email,
+          code: codeParam || prev.code
+        }));
+      }
+    } catch (_) {}
+  }, []);
 
   // KPI Calculations
   const totalAssetValue = assets.reduce((sum, a) => sum + Number(a.purchase_price || 0), 0);
@@ -539,6 +360,7 @@ export default function App() {
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
     setAuthError('');
+    setAuthSuccess('');
     setAuthLoading(true);
     try {
       const endpoint = authMode === 'register' ? 'register' : 'login';
@@ -570,6 +392,94 @@ export default function App() {
     }
   };
 
+  const handleForgotPasswordSubmit = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthSuccess('');
+    setAuthPreviewUrl('');
+    setAuthLoading(true);
+
+    try {
+      const emailToSend = (resetForm.email || authForm.email || '').trim();
+      if (!emailToSend) {
+        setAuthError('Please enter your email address');
+        setAuthLoading(false);
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailToSend })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAuthError(data.message || 'Failed to send reset code');
+        return;
+      }
+
+      setAuthSuccess(data.message || 'Verification code sent to your email.');
+      if (data.previewUrl) {
+        setAuthPreviewUrl(data.previewUrl);
+      }
+      setResetForm(prev => ({ ...prev, email: emailToSend }));
+      setAuthMode('reset');
+    } catch (err) {
+      setAuthError('Cannot reach the server. Is the API running on port 5000?');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleResetPasswordSubmit = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthSuccess('');
+    setAuthLoading(true);
+
+    if (resetForm.newPassword !== resetForm.confirmPassword) {
+      setAuthError('Passwords do not match');
+      setAuthLoading(false);
+      return;
+    }
+
+    if (resetForm.newPassword.length < 6) {
+      setAuthError('Password must be at least 6 characters long');
+      setAuthLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: resetForm.email,
+          code: resetForm.code,
+          newPassword: resetForm.newPassword
+        })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAuthError(data.message || 'Failed to reset password');
+        return;
+      }
+
+      setAuthSuccess('Password reset successfully! You can now sign in.');
+      setAuthForm(prev => ({ ...prev, email: resetForm.email, password: '' }));
+      setResetForm({ email: '', code: '', newPassword: '', confirmPassword: '' });
+      setTimeout(() => {
+        setAuthMode('login');
+      }, 1500);
+    } catch (err) {
+      setAuthError('Cannot reach the server. Is the API running on port 5000?');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('ld_token');
     localStorage.removeItem('ld_user');
@@ -579,7 +489,7 @@ export default function App() {
     setAuthForm({ name: '', email: '', password: '' });
   };
 
-  // ===== Auth gate: show login / register screen when not authenticated =====
+  // ===== Auth gate: show login / register / forgot / reset screen when not authenticated =====
   if (!token) {
     return (
       <div className="auth-screen">
@@ -593,63 +503,183 @@ export default function App() {
           </div>
 
           <h2 className="auth-title">
-            {authMode === 'register' ? 'Create your account' : 'Welcome back'}
+            {authMode === 'register' && 'Create your account'}
+            {authMode === 'login' && 'Welcome back'}
+            {authMode === 'forgot' && 'Reset your password'}
+            {authMode === 'reset' && 'Enter Verification Code'}
           </h2>
           <p className="auth-subtitle">
-            {authMode === 'register'
-              ? 'Sign up to start keeping track of your things, warranties and subscriptions.'
-              : 'Sign in to pick up where you left off.'}
+            {authMode === 'register' && 'Sign up to start keeping track of your things, warranties and subscriptions.'}
+            {authMode === 'login' && 'Sign in to pick up where you left off.'}
+            {authMode === 'forgot' && "Enter your registered email address and we'll send you a 6-digit verification code."}
+            {authMode === 'reset' && `Check your inbox (${resetForm.email || 'your email'}) for the 6-digit verification code.`}
           </p>
 
-          <form onSubmit={handleAuthSubmit} className="auth-form">
-            {authMode === 'register' && (
+          {/* LOGIN & REGISTER FORM */}
+          {(authMode === 'login' || authMode === 'register') && (
+            <form onSubmit={handleAuthSubmit} className="auth-form">
+              {authMode === 'register' && (
+                <label className="auth-field">
+                  <span>Full Name</span>
+                  <input
+                    type="text"
+                    value={authForm.name}
+                    onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })}
+                    placeholder="Alex Morgan"
+                    required
+                  />
+                </label>
+              )}
               <label className="auth-field">
-                <span>Full Name</span>
+                <span>Email</span>
                 <input
-                  type="text"
-                  value={authForm.name}
-                  onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })}
-                  placeholder="Alex Morgan"
+                  type="email"
+                  value={authForm.email}
+                  onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })}
+                  placeholder="demo@lifedesk.com"
                   required
                 />
               </label>
-            )}
-            <label className="auth-field">
-              <span>Email</span>
-              <input
-                type="email"
-                value={authForm.email}
-                onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })}
-                placeholder="demo@lifedesk.com"
-                required
-              />
-            </label>
-            <label className="auth-field">
-              <span>Password</span>
-              <input
-                type="password"
-                value={authForm.password}
-                onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
-                placeholder="••••••••"
-                required
-              />
-            </label>
+              <label className="auth-field">
+                <div className="auth-field-header">
+                  <span>Password</span>
+                  {authMode === 'login' && (
+                    <button
+                      type="button"
+                      className="auth-forgot-link"
+                      onClick={() => {
+                        setAuthMode('forgot');
+                        setAuthError('');
+                        setAuthSuccess('');
+                        setResetForm(prev => ({ ...prev, email: authForm.email }));
+                      }}
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <input
+                  type="password"
+                  value={authForm.password}
+                  onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
+                  placeholder="••••••••"
+                  required
+                />
+              </label>
 
-            {authError && <div className="auth-error"><AlertCircle size={15} /> {authError}</div>}
+              {authSuccess && <div className="auth-success"><CheckCircle size={15} /> {authSuccess}</div>}
+              {authError && <div className="auth-error"><AlertCircle size={15} /> {authError}</div>}
 
-            <button type="submit" className="auth-submit" disabled={authLoading}>
-              {authLoading ? 'Please wait…' : authMode === 'register' ? 'Create Account' : 'Sign In'}
-            </button>
-          </form>
+              <button type="submit" className="auth-submit" disabled={authLoading}>
+                {authLoading ? 'Please wait…' : authMode === 'register' ? 'Create Account' : 'Sign In'}
+              </button>
+            </form>
+          )}
+
+          {/* FORGOT PASSWORD FORM */}
+          {authMode === 'forgot' && (
+            <form onSubmit={handleForgotPasswordSubmit} className="auth-form">
+              <label className="auth-field">
+                <span>Registered Email</span>
+                <input
+                  type="email"
+                  value={resetForm.email}
+                  onChange={(e) => setResetForm({ ...resetForm, email: e.target.value })}
+                  placeholder="you@example.com"
+                  required
+                />
+              </label>
+
+              {authError && <div className="auth-error"><AlertCircle size={15} /> {authError}</div>}
+              {authSuccess && <div className="auth-success"><CheckCircle size={15} /> {authSuccess}</div>}
+
+              <button type="submit" className="auth-submit" disabled={authLoading}>
+                {authLoading ? 'Sending code…' : 'Send Verification Code'}
+              </button>
+            </form>
+          )}
+
+          {/* RESET PASSWORD FORM */}
+          {authMode === 'reset' && (
+            <form onSubmit={handleResetPasswordSubmit} className="auth-form">
+              <label className="auth-field">
+                <span>Email</span>
+                <input
+                  type="email"
+                  value={resetForm.email}
+                  onChange={(e) => setResetForm({ ...resetForm, email: e.target.value })}
+                  required
+                />
+              </label>
+              <label className="auth-field">
+                <span>6-Digit Verification Code</span>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={resetForm.code}
+                  onChange={(e) => setResetForm({ ...resetForm, code: e.target.value })}
+                  placeholder="123456"
+                  style={{ letterSpacing: '4px', fontWeight: 'bold', fontSize: '1.1rem' }}
+                  required
+                />
+              </label>
+              <label className="auth-field">
+                <span>New Password</span>
+                <input
+                  type="password"
+                  value={resetForm.newPassword}
+                  onChange={(e) => setResetForm({ ...resetForm, newPassword: e.target.value })}
+                  placeholder="••••••••"
+                  required
+                />
+              </label>
+              <label className="auth-field">
+                <span>Confirm New Password</span>
+                <input
+                  type="password"
+                  value={resetForm.confirmPassword}
+                  onChange={(e) => setResetForm({ ...resetForm, confirmPassword: e.target.value })}
+                  placeholder="••••••••"
+                  required
+                />
+              </label>
+
+              {authError && <div className="auth-error"><AlertCircle size={15} /> {authError}</div>}
+              {authSuccess && <div className="auth-success"><CheckCircle size={15} /> {authSuccess}</div>}
+
+              {authPreviewUrl && (
+                <div style={{ textAlign: 'center', marginTop: '0.25rem' }}>
+                  <a
+                    href={authPreviewUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="auth-preview-link"
+                  >
+                    <Mail size={13} /> View test email preview (Ethereal) ↗
+                  </a>
+                </div>
+              )}
+
+              <button type="submit" className="auth-submit" disabled={authLoading}>
+                {authLoading ? 'Updating password…' : 'Update Password'}
+              </button>
+            </form>
+          )}
 
           <div className="auth-switch">
-            {authMode === 'register' ? (
+            {authMode === 'register' && (
               <span>Already have an account?{' '}
-                <button type="button" onClick={() => { setAuthMode('login'); setAuthError(''); }}>Sign in</button>
+                <button type="button" onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccess(''); }}>Sign in</button>
               </span>
-            ) : (
+            )}
+            {authMode === 'login' && (
               <span>New to LifeHub?{' '}
-                <button type="button" onClick={() => { setAuthMode('register'); setAuthError(''); }}>Create an account</button>
+                <button type="button" onClick={() => { setAuthMode('register'); setAuthError(''); setAuthSuccess(''); }}>Create an account</button>
+              </span>
+            )}
+            {(authMode === 'forgot' || authMode === 'reset') && (
+              <span>Remember your password?{' '}
+                <button type="button" onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccess(''); }}>Back to Sign In</button>
               </span>
             )}
           </div>
@@ -863,20 +893,27 @@ export default function App() {
                 </div>
 
                 <div className="tasks-list">
-                  {tasks.map(t => (
-                    <div key={t.id} className="task-item">
-                      <div>
-                        <div className="task-room">{t.room}</div>
-                        <div className="task-title">{t.title}</div>
-                        <div className="task-due">
-                          <Calendar size={13} /> {t.due}
-                        </div>
-                      </div>
-                      <span className={`badge ${t.priority === 'Urgent' ? 'repair' : 'active'}`}>
-                        {t.priority}
-                      </span>
+                  {tasks.length === 0 ? (
+                    <div className="empty-state">
+                      <CheckCircle size={22} />
+                      <p>No tasks yet. Add a reminder for upkeep or errands.</p>
                     </div>
-                  ))}
+                  ) : (
+                    tasks.map(t => (
+                      <div key={t.id} className="task-item">
+                        <div>
+                          <div className="task-room">{t.room}</div>
+                          <div className="task-title">{t.title}</div>
+                          <div className="task-due">
+                            <Calendar size={13} /> {t.due}
+                          </div>
+                        </div>
+                        <span className={`badge ${t.priority === 'Urgent' ? 'repair' : 'active'}`}>
+                          {t.priority}
+                        </span>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 

@@ -21,7 +21,11 @@ async function getTransporter() {
     }
 
     // 2. Gmail / Google Workspace App Password
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    if (
+      process.env.EMAIL_USER &&
+      process.env.EMAIL_PASS &&
+      !process.env.EMAIL_PASS.includes('your_16_digit')
+    ) {
       console.log('📬 Configured Gmail mailer for:', process.env.EMAIL_USER);
       return nodemailer.createTransport({
         service: 'gmail',

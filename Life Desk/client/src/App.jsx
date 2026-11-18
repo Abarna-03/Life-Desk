@@ -568,7 +568,35 @@ export default function App() {
               </label>
 
               {authSuccess && <div className="auth-success"><CheckCircle size={15} /> {authSuccess}</div>}
-              {authError && <div className="auth-error"><AlertCircle size={15} /> {authError}</div>}
+              {authError && (
+                <div className="auth-error" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.35rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <AlertCircle size={15} /> {authError}
+                  </div>
+                  {authError.toLowerCase().includes('no account') && (
+                    <button
+                      type="button"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        color: '#4338ca',
+                        fontWeight: 700,
+                        fontSize: '0.82rem',
+                        cursor: 'pointer',
+                        textDecoration: 'underline'
+                      }}
+                      onClick={() => {
+                        setAuthMode('register');
+                        setAuthError('');
+                        setAuthForm(prev => ({ ...prev, email: resetForm.email }));
+                      }}
+                    >
+                      Click here to create an account with this email →
+                    </button>
+                  )}
+                </div>
+              )}
 
               <button type="submit" className="auth-submit" disabled={authLoading}>
                 {authLoading ? 'Please wait…' : authMode === 'register' ? 'Create Account' : 'Sign In'}
@@ -590,7 +618,35 @@ export default function App() {
                 />
               </label>
 
-              {authError && <div className="auth-error"><AlertCircle size={15} /> {authError}</div>}
+              {authError && (
+                <div className="auth-error" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.35rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <AlertCircle size={15} /> {authError}
+                  </div>
+                  {authError.toLowerCase().includes('no account') && (
+                    <button
+                      type="button"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        color: '#4338ca',
+                        fontWeight: 700,
+                        fontSize: '0.82rem',
+                        cursor: 'pointer',
+                        textDecoration: 'underline'
+                      }}
+                      onClick={() => {
+                        setAuthMode('register');
+                        setAuthError('');
+                        setAuthForm(prev => ({ ...prev, email: resetForm.email }));
+                      }}
+                    >
+                      Click here to create an account with this email →
+                    </button>
+                  )}
+                </div>
+              )}
               {authSuccess && <div className="auth-success"><CheckCircle size={15} /> {authSuccess}</div>}
 
               <button type="submit" className="auth-submit" disabled={authLoading}>
@@ -644,7 +700,35 @@ export default function App() {
                 />
               </label>
 
-              {authError && <div className="auth-error"><AlertCircle size={15} /> {authError}</div>}
+              {authError && (
+                <div className="auth-error" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.35rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <AlertCircle size={15} /> {authError}
+                  </div>
+                  {authError.toLowerCase().includes('no account') && (
+                    <button
+                      type="button"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        color: '#4338ca',
+                        fontWeight: 700,
+                        fontSize: '0.82rem',
+                        cursor: 'pointer',
+                        textDecoration: 'underline'
+                      }}
+                      onClick={() => {
+                        setAuthMode('register');
+                        setAuthError('');
+                        setAuthForm(prev => ({ ...prev, email: resetForm.email }));
+                      }}
+                    >
+                      Click here to create an account with this email →
+                    </button>
+                  )}
+                </div>
+              )}
               {authSuccess && <div className="auth-success"><CheckCircle size={15} /> {authSuccess}</div>}
 
               {authPreviewUrl && (

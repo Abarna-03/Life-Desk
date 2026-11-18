@@ -12,13 +12,13 @@ export default function NavTabs({
   documentsCount = 0,
 }) {
   const tabs = [
-    { key: 'dashboard', label: 'Action Center', icon: Layers },
-    { key: 'assets', label: `Asset Inventory (${assetsCount})`, icon: Home },
-    { key: 'timeline', label: 'LifeHub Smart Timeline', icon: Clock },
-    { key: 'subscriptions', label: `SubSave (${subscriptionsCount})`, icon: CreditCard },
-    { key: 'repairs', label: `FixFlow (${repairsCount})`, icon: Wrench },
-    { key: 'documents', label: `Document Vault (${documentsCount})`, icon: FileText },
-    { key: 'analytics', label: 'Cost Analytics', icon: BarChart2 },
+    { key: 'dashboard', label: 'Dashboard', icon: Layers },
+    { key: 'assets', label: `Assets (${assetsCount})`, icon: Home },
+    { key: 'timeline', label: 'Timeline', icon: Clock },
+    { key: 'subscriptions', label: `Subscriptions (${subscriptionsCount})`, icon: CreditCard },
+    { key: 'repairs', label: `Repairs (${repairsCount})`, icon: Wrench },
+    { key: 'documents', label: `Documents (${documentsCount})`, icon: FileText },
+    { key: 'analytics', label: 'Analytics', icon: BarChart2 },
   ]
 
   return (

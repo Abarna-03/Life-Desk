@@ -36,7 +36,7 @@ const DOTS = {
   amber: '#f59e0b',
 }
 
-export default function SmartTimeline({
+export default function Timeline({
   assets,
   selectedAsset,
   setSelectedAsset,
@@ -68,10 +68,10 @@ export default function SmartTimeline({
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-extrabold tracking-tight text-foreground">
-            LifeHub Smart Timeline
+            Timeline
           </h2>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            Unified chronological lifecycle and dynamic Total Cost of Ownership (TCO) for{' '}
+            Full history and total cost of ownership for{' '}
             <strong>{selectedAsset.name}</strong>.
           </p>
         </div>
@@ -100,7 +100,7 @@ export default function SmartTimeline({
       <div className="mb-8 flex flex-wrap items-center justify-between gap-5 rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-indigo-100 px-7 py-6 shadow-sm">
         <div>
           <div className="text-sm font-bold uppercase tracking-wide text-primary">
-            Dynamic Total Cost of Ownership (TCO)
+Total Cost of Ownership
           </div>
           <div className="mt-1 text-4xl font-black tracking-tight text-indigo-900">
             ${tco.toLocaleString()}
@@ -152,12 +152,12 @@ export default function SmartTimeline({
         {assetDocs.map((doc, idx) => (
           <TimelineItem key={`doc-${idx}`} dotColor={DOTS.primary}>
             <div className="mb-1.5 flex items-center gap-2 text-[0.8125rem] text-muted-foreground">
-              <FileText size={13} /> Document Vaulted ·{' '}
+              <FileText size={13} /> Document Saved ·{' '}
               <Badge variant="info">{doc.document_type}</Badge>
             </div>
             <div className="mb-1.5 text-[1.05rem] font-bold text-foreground">{doc.title}</div>
             <div className="mb-2 text-sm text-muted-foreground">
-              File: {doc.file_name} · Securely archived in LifeAdmin Vault.
+              File: {doc.file_name} · Securely saved in Documents.
             </div>
             <span className="inline-block rounded-md bg-muted px-2.5 py-1 text-[0.8125rem] font-bold text-stone-600">
               Vault Record (No Cost)

@@ -5,20 +5,20 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
-export default function SubSave({ subscriptions, setShowAddSubModal }) {
+export default function Subscriptions({ subscriptions, setShowAddSubModal }) {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-extrabold tracking-tight text-foreground">
-            SubSave — Renewal &amp; Contract Watcher
+            Subscriptions &amp; Contracts
           </h2>
           <p className="mt-0.5 text-sm text-muted-foreground">
             Track recurring insurance policies, AMCs, utilities, and software services.
           </p>
         </div>
         <Button type="button" onClick={() => setShowAddSubModal(true)}>
-          <Plus size={16} /> Add Subscription / AMC
+          <Plus size={16} /> Add Subscription
         </Button>
       </div>
 

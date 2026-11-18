@@ -36,7 +36,7 @@ export default function AddRepairModal({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Log Service Request / Repair (FixFlow)</DialogTitle>
+          <DialogTitle>Log Service / Repair</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-5">

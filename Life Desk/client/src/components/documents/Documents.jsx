@@ -6,20 +6,20 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { prettyType } from '@/utils/formatters'
 
-export default function DocumentVault({ documents, setShowAddDocModal }) {
+export default function Documents({ documents, setShowAddDocModal }) {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-extrabold tracking-tight text-foreground">
-            LifeAdmin — Document Vault
+            Documents
           </h2>
           <p className="mt-0.5 text-sm text-muted-foreground">
             Invoices, warranty certificates, user manuals, and insurance policies organized in one place.
           </p>
         </div>
         <Button type="button" onClick={() => setShowAddDocModal(true)}>
-          <Plus size={16} /> Vault New Document
+          <Plus size={16} /> Add Document
         </Button>
       </div>
 
@@ -28,7 +28,7 @@ export default function DocumentVault({ documents, setShowAddDocModal }) {
           <div className="col-span-full rounded-xl border border-dashed border-border bg-card p-12 text-center">
             <p className="mb-4 text-muted-foreground">No documents vaulted yet.</p>
             <Button type="button" onClick={() => setShowAddDocModal(true)}>
-              <Plus size={14} /> Vault First Document
+              <Plus size={14} /> Add First Document
             </Button>
           </div>
         ) : (

@@ -22,7 +22,7 @@ const topBarStyles = {
   gray: 'bg-muted text-muted-foreground border-b border-border',
 }
 
-export default function AssetInventory({
+export default function Assets({
   assets,
   searchQuery,
   setSearchQuery,
@@ -55,7 +55,7 @@ export default function AssetInventory({
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-extrabold tracking-tight text-foreground">
-            Asset Inventory &amp; Registry
+            My Assets
           </h2>
           <p className="mt-0.5 text-sm text-muted-foreground">
             Manage physical appliances, electronics, vehicles, and furniture with warranty tracking.
@@ -196,7 +196,7 @@ export default function AssetInventory({
                       setActiveTab('timeline')
                     }}
                   >
-                    <Clock size={14} /> Smart Timeline
+                    <Clock size={14} /> Timeline
                   </Button>
                   <Button
                     type="button"

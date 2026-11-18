@@ -4,13 +4,13 @@ import React, { useState, useEffect } from 'react';
 import AuthScreen from './components/auth/AuthScreen';
 import Header from './components/layout/Header';
 import NavTabs from './components/layout/NavTabs';
-import ActionCenter from './components/dashboard/ActionCenter';
-import AssetInventory from './components/assets/AssetInventory';
-import SmartTimeline from './components/timeline/SmartTimeline';
-import SubSave from './components/subscriptions/SubSave';
-import FixFlow from './components/maintenance/FixFlow';
-import DocumentVault from './components/documents/DocumentVault';
-import CostAnalytics from './components/analytics/CostAnalytics';
+import Dashboard from './components/dashboard/Dashboard';
+import Assets from './components/assets/Assets';
+import Timeline from './components/timeline/Timeline';
+import Subscriptions from './components/subscriptions/Subscriptions';
+import Repairs from './components/maintenance/Repairs';
+import Documents from './components/documents/Documents';
+import Analytics from './components/analytics/Analytics';
 
 // Modals
 import AddAssetModal from './components/modals/AddAssetModal';
@@ -513,7 +513,7 @@ export default function App() {
       {/* Main Content Area */}
       <main className="mx-auto w-full max-w-[1400px] flex-1 px-6 py-7">
         {activeTab === 'dashboard' && (
-          <ActionCenter
+          <Dashboard
             assets={assets}
             subscriptions={subscriptions}
             repairs={repairs}
@@ -530,7 +530,7 @@ export default function App() {
         )}
 
         {activeTab === 'assets' && (
-          <AssetInventory
+          <Assets
             assets={assets}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -547,7 +547,7 @@ export default function App() {
         )}
 
         {activeTab === 'timeline' && (
-          <SmartTimeline
+          <Timeline
             assets={assets}
             selectedAsset={selectedAsset}
             setSelectedAsset={setSelectedAsset}
@@ -558,28 +558,28 @@ export default function App() {
         )}
 
         {activeTab === 'subscriptions' && (
-          <SubSave
+          <Subscriptions
             subscriptions={subscriptions}
             setShowAddSubModal={setShowAddSubModal}
           />
         )}
 
         {activeTab === 'repairs' && (
-          <FixFlow
+          <Repairs
             repairs={repairs}
             setShowAddRepairModal={setShowAddRepairModal}
           />
         )}
 
         {activeTab === 'documents' && (
-          <DocumentVault
+          <Documents
             documents={documents}
             setShowAddDocModal={setShowAddDocModal}
           />
         )}
 
         {activeTab === 'analytics' && (
-          <CostAnalytics
+          <Analytics
             totalAssetValue={totalAssetValue}
             monthlyRecurring={monthlyRecurring}
             totalRepairsCost={totalRepairsCost}

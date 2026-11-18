@@ -140,7 +140,7 @@ export default function AddSubscriptionModal({
             <Button type="button" variant="secondary" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Save to SubSave</Button>
+            <Button type="submit">Save Subscription</Button>
           </DialogFooter>
         </form>
       </DialogContent>

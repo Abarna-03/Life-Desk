@@ -39,12 +39,12 @@ function KpiCard({ tone, icon: Icon, label, value }) {
   )
 }
 
-export default function CostAnalytics({ totalAssetValue, monthlyRecurring, totalRepairsCost }) {
+export default function Analytics({ totalAssetValue, monthlyRecurring, totalRepairsCost }) {
   return (
     <div>
       <div className="mb-6">
         <h2 className="text-xl font-extrabold tracking-tight text-foreground">
-          Cost &amp; Maintenance Analytics
+          Spending Analytics
         </h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
           Track long-term maintenance costs vs recurring commitments and asset depreciation.

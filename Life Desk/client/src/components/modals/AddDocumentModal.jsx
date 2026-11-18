@@ -38,7 +38,7 @@ export default function AddDocumentModal({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Vault Document (LifeAdmin)</DialogTitle>
+          <DialogTitle>Add Document</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-5">

@@ -151,7 +151,7 @@ export default function AddAssetModal({ isOpen, onClose, newAsset, setNewAsset, 
             <Button type="button" variant="secondary" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Save Asset to LifeHub</Button>
+            <Button type="submit">Save Asset</Button>
           </DialogFooter>
         </form>
       </DialogContent>

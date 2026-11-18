@@ -5,13 +5,13 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
-export default function FixFlow({ repairs, setShowAddRepairModal }) {
+export default function Repairs({ repairs, setShowAddRepairModal }) {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-extrabold tracking-tight text-foreground">
-            FixFlow — Repair &amp; Maintenance Management
+            Repairs &amp; Maintenance
           </h2>
           <p className="mt-0.5 text-sm text-muted-foreground">
             Track service requests, assigned technicians, breakdown history, and repair expenses.

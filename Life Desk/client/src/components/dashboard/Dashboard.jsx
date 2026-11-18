@@ -70,7 +70,7 @@ function KpiCard({ tone, icon: Icon, label, value }) {
   )
 }
 
-export default function ActionCenter({
+export default function Dashboard({
   assets,
   subscriptions,
   repairs,
@@ -261,7 +261,7 @@ export default function ActionCenter({
                         setActiveTab('timeline')
                       }}
                     >
-                      <Clock size={14} /> Smart Timeline
+                      <Clock size={14} /> Timeline
                     </Button>
                   </div>
                 </Card>

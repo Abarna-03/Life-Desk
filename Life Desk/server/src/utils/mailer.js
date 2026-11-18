@@ -1,77 +1,87 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 
-let transporterPromise = null;
+dotenv.config();
+
+let cachedTransporter = null;
+let lastEmailPass = null;
 
 async function getTransporter() {
-  if (transporterPromise) return transporterPromise;
+  const currentPass = process.env.EMAIL_PASS ? process.env.EMAIL_PASS.replace(/\s+/g, '') : '';
+  const currentUser = process.env.EMAIL_USER ? process.env.EMAIL_USER.trim() : '';
 
-  transporterPromise = (async () => {
-    // 1. Dedicated SMTP configuration (SendGrid, Mailgun, custom host, etc.)
-    if (process.env.SMTP_HOST && process.env.SMTP_USER) {
-      console.log('📬 Configured SMTP mailer with host:', process.env.SMTP_HOST);
-      return nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || '587', 10),
-        secure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465',
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
-    }
+  // If password changed in .env, invalidate cached transporter
+  if (cachedTransporter && lastEmailPass !== currentPass) {
+    cachedTransporter = null;
+  }
 
-    // 2. Gmail / Google Workspace App Password
-    if (
-      process.env.EMAIL_USER &&
-      process.env.EMAIL_PASS &&
-      !process.env.EMAIL_PASS.includes('your_16_digit')
-    ) {
-      console.log('📬 Configured Gmail mailer for:', process.env.EMAIL_USER);
-      return nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-    }
+  if (cachedTransporter) return cachedTransporter;
 
-    // 3. Fallback: Ethereal test account (with fallback to local logger if offline)
-    try {
-      const testAccount = await nodemailer.createTestAccount();
-      console.log('📬 Created Ethereal test email account:', testAccount.user);
-      return nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
-        auth: {
-          user: testAccount.user,
-          pass: testAccount.pass,
-        },
-      });
-    } catch (err) {
-      console.log('⚠️ Using console logger email transporter (no SMTP configured)');
-      return {
-        sendMail: async (mailOptions) => {
-          console.log('\n================== 📧 EMAIL SENT ==================');
-          console.log('To:', mailOptions.to);
-          console.log('Subject:', mailOptions.subject);
-          console.log('Body:\n', mailOptions.text || mailOptions.html);
-          console.log('====================================================\n');
-          return { messageId: 'local-' + Date.now() };
-        },
-      };
-    }
-  })();
+  // 1. Dedicated SMTP configuration (SendGrid, Mailgun, custom host, etc.)
+  if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+    console.log('📬 Configured SMTP mailer with host:', process.env.SMTP_HOST);
+    cachedTransporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
+      secure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+    lastEmailPass = currentPass;
+    return cachedTransporter;
+  }
 
-  return transporterPromise;
+  // 2. Gmail / Google Workspace App Password
+  if (currentUser && currentPass && !currentPass.includes('your_16_digit')) {
+    console.log('📬 Configured Gmail mailer for:', currentUser);
+    cachedTransporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: currentUser,
+        pass: currentPass,
+      },
+    });
+    lastEmailPass = currentPass;
+    return cachedTransporter;
+  }
+
+  // 3. Fallback: Ethereal test account (with fallback to local logger if offline)
+  try {
+    const testAccount = await nodemailer.createTestAccount();
+    console.log('📬 Created Ethereal test email account:', testAccount.user);
+    cachedTransporter = nodemailer.createTransport({
+      host: 'smtp.ethereal.email',
+      port: 587,
+      secure: false,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass,
+      },
+    });
+    lastEmailPass = currentPass;
+    return cachedTransporter;
+  } catch (err) {
+    console.log('⚠️ Using console logger email transporter (no SMTP configured)');
+    return {
+      sendMail: async (mailOptions) => {
+        console.log('\n================== 📧 EMAIL SENT ==================');
+        console.log('To:', mailOptions.to);
+        console.log('Subject:', mailOptions.subject);
+        console.log('Body:\n', mailOptions.text || mailOptions.html);
+        console.log('====================================================\n');
+        return { messageId: 'local-' + Date.now() };
+      },
+    };
+  }
 }
 
 export async function sendPasswordResetEmail({ toEmail, userName, resetCode, resetLink }) {
   try {
     const transporter = await getTransporter();
 
-    const fromAddress = process.env.EMAIL_FROM || process.env.EMAIL_USER || '"LifeHub Security" <no-reply@lifehub.local>';
+    const fromAddress = process.env.EMAIL_FROM || process.env.EMAIL_USER || '"LifeHub Support" <no-reply@lifehub.local>';
 
     const htmlContent = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
@@ -127,4 +137,3 @@ export async function sendPasswordResetEmail({ toEmail, userName, resetCode, res
     throw error;
   }
 }
-

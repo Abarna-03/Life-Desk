@@ -3,46 +3,50 @@ import { Plus } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import {
+  CardFooterBar,
+  CardsGrid,
+  CardTopBar,
+  EmptyState,
+  EntityCard,
+  SectionHeader,
+} from '@/components/common'
+import { formatMoney } from '@/utils/formatters'
 
 export default function Subscriptions({ subscriptions, setShowAddSubModal }) {
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-extrabold tracking-tight text-foreground">
-            Subscriptions &amp; Contracts
-          </h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            Track recurring insurance policies, AMCs, utilities, and software services.
-          </p>
-        </div>
-        <Button type="button" onClick={() => setShowAddSubModal(true)}>
-          <Plus size={16} /> Add Subscription
-        </Button>
-      </div>
+      <SectionHeader
+        title="Subscriptions & Contracts"
+        subtitle="Track recurring insurance policies, AMCs, utilities, and software services."
+        action={
+          <Button type="button" onClick={() => setShowAddSubModal(true)}>
+            <Plus size={16} /> Add Subscription
+          </Button>
+        }
+      />
 
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-6">
+      <CardsGrid>
         {subscriptions.length === 0 ? (
-          <div className="col-span-full rounded-xl border border-dashed border-border bg-card p-12 text-center">
-            <p className="mb-4 text-muted-foreground">No subscriptions or AMCs added yet.</p>
-            <Button type="button" onClick={() => setShowAddSubModal(true)}>
-              <Plus size={14} /> Add First Subscription
-            </Button>
-          </div>
+          <EmptyState
+            fullWidth
+            message="No subscriptions or AMCs added yet."
+            action={
+              <Button type="button" onClick={() => setShowAddSubModal(true)}>
+                <Plus size={14} /> Add First Subscription
+              </Button>
+            }
+          />
         ) : (
           subscriptions.map((sub) => (
-            <Card
-              key={sub.id}
-              className="justify-between gap-0 overflow-hidden p-0 transition-all hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md"
-            >
-              <div className="flex items-center justify-between border-b border-teal-200 bg-teal-50 px-5 py-3 text-[0.8125rem] font-bold text-teal-800">
+            <EntityCard key={sub.id}>
+              <CardTopBar tone="teal">
                 <span>{sub.name}</span>
                 <Badge variant="purple">{sub.category}</Badge>
-              </div>
+              </CardTopBar>
               <div className="flex-1 p-5">
                 <div className="my-2 text-[1.75rem] font-extrabold text-primary">
-                  ${sub.cost}{' '}
+                  {formatMoney(sub.cost)}{' '}
                   <span className="text-sm font-medium text-muted-foreground">
                     /{sub.billing_cycle.toLowerCase()}
                   </span>
@@ -54,7 +58,7 @@ export default function Subscriptions({ subscriptions, setShowAddSubModal }) {
                   Next Renewal: <strong>{sub.next_renewal_date}</strong>
                 </div>
               </div>
-              <div className="flex items-center justify-between border-t border-border bg-stone-50 px-5 py-4">
+              <CardFooterBar>
                 <Badge variant={sub.auto_renew ? 'success' : 'warning'}>
                   {sub.auto_renew ? 'Auto-Renew: ON' : 'Manual Payment'}
                 </Badge>
@@ -66,11 +70,11 @@ export default function Subscriptions({ subscriptions, setShowAddSubModal }) {
                 >
                   Set Reminder
                 </Button>
-              </div>
-            </Card>
+              </CardFooterBar>
+            </EntityCard>
           ))
         )}
-      </div>
+      </CardsGrid>
     </div>
   )
 }

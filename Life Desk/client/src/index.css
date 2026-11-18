@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================
-   LifeHub — warm theme tokens mapped to shadcn/ui
+   LifeDesk — warm theme tokens mapped to shadcn/ui
    Indigo primary (#4f46e5) · warm off-white canvas · teal accent
    ============================================================ */
 :root {

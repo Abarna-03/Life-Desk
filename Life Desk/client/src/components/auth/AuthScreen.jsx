@@ -1,9 +1,10 @@
 import React from 'react'
-import { Layers, CheckCircle, AlertCircle, Sparkles, Mail } from 'lucide-react'
+import { CheckCircle, AlertCircle, Sparkles, Mail } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import logo from '@/assets/lifedesk-logo-trim.png'
 
 function FieldError({ message, onCreateAccount }) {
   return (
@@ -59,18 +60,12 @@ export default function AuthScreen({
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-background to-teal-50 p-6">
       <div className="w-full max-w-[420px] rounded-2xl border border-border bg-card p-9 shadow-lg">
         {/* Brand */}
-        <div className="mb-7 flex items-center gap-3">
-          <div className="flex items-center justify-center rounded-[0.625rem] bg-gradient-to-br from-brand-indigo to-brand-teal p-2.5 text-white shadow-md shadow-brand-indigo/25">
-            <Layers size={24} />
-          </div>
-          <div>
-            <div className="text-[1.35rem] font-extrabold tracking-tight text-foreground">
-              LifeHub
-            </div>
-            <div className="text-xs font-medium text-muted-foreground">
-              Your home &amp; belongings, all in one place
-            </div>
-          </div>
+        <div className="mb-6 flex justify-center">
+          <img
+            src={logo}
+            alt="LifeDesk — Everything in life, organized"
+            className="h-28 w-auto object-contain"
+          />
         </div>
 
         <h2 className="mb-1.5 text-2xl font-bold text-foreground">

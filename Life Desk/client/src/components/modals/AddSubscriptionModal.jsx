@@ -95,7 +95,7 @@ export default function AddSubscriptionModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="sub-cost">Cost ($) *</Label>
+              <Label htmlFor="sub-cost">Cost (₹) *</Label>
               <Input
                 id="sub-cost"
                 type="number"

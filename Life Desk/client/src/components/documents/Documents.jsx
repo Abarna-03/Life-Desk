@@ -3,40 +3,42 @@ import { Plus, FileText, ExternalLink } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import {
+  CardFooterBar,
+  CardsGrid,
+  EmptyState,
+  EntityCard,
+  SectionHeader,
+} from '@/components/common'
 import { prettyType } from '@/utils/formatters'
 
 export default function Documents({ documents, setShowAddDocModal }) {
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-extrabold tracking-tight text-foreground">
-            Documents
-          </h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            Invoices, warranty certificates, user manuals, and insurance policies organized in one place.
-          </p>
-        </div>
-        <Button type="button" onClick={() => setShowAddDocModal(true)}>
-          <Plus size={16} /> Add Document
-        </Button>
-      </div>
+      <SectionHeader
+        title="Documents"
+        subtitle="Invoices, warranty certificates, user manuals, and insurance policies organized in one place."
+        action={
+          <Button type="button" onClick={() => setShowAddDocModal(true)}>
+            <Plus size={16} /> Add Document
+          </Button>
+        }
+      />
 
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-6">
+      <CardsGrid>
         {documents.length === 0 ? (
-          <div className="col-span-full rounded-xl border border-dashed border-border bg-card p-12 text-center">
-            <p className="mb-4 text-muted-foreground">No documents vaulted yet.</p>
-            <Button type="button" onClick={() => setShowAddDocModal(true)}>
-              <Plus size={14} /> Add First Document
-            </Button>
-          </div>
+          <EmptyState
+            fullWidth
+            message="No documents vaulted yet."
+            action={
+              <Button type="button" onClick={() => setShowAddDocModal(true)}>
+                <Plus size={14} /> Add First Document
+              </Button>
+            }
+          />
         ) : (
           documents.map((doc) => (
-            <Card
-              key={doc.id}
-              className="justify-between gap-0 overflow-hidden p-0 transition-all hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md"
-            >
+            <EntityCard key={doc.id}>
               <div className="flex flex-1 items-start gap-4 p-5">
                 <div className="rounded-[0.625rem] bg-primary/10 p-3.5 text-primary">
                   <FileText size={32} />
@@ -54,7 +56,7 @@ export default function Documents({ documents, setShowAddDocModal }) {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center justify-between border-t border-border bg-stone-50 px-5 py-4">
+              <CardFooterBar>
                 <Badge variant="success">Verified</Badge>
                 <Button
                   type="button"
@@ -64,11 +66,11 @@ export default function Documents({ documents, setShowAddDocModal }) {
                 >
                   <ExternalLink size={13} /> View File
                 </Button>
-              </div>
-            </Card>
+              </CardFooterBar>
+            </EntityCard>
           ))
         )}
-      </div>
+      </CardsGrid>
     </div>
   )
 }

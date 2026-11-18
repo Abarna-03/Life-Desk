@@ -9,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { EmptyState, SectionHeader } from '@/components/common'
+import { formatMoney } from '@/utils/formatters'
 import { cn } from '@/lib/utils'
 
 function TimelineItem({ dotColor, last, children }) {
@@ -36,6 +38,43 @@ const DOTS = {
   amber: '#f59e0b',
 }
 
+/* ---------- Total-cost-of-ownership summary banner ---------- */
+function TcoBanner({ asset, tco, repairSum, subsSum }) {
+  const breakdown = [
+    { label: 'Initial Purchase', val: Number(asset.purchase_price || 0) },
+    { label: 'Repairs & Maintenance', val: repairSum },
+    { label: 'AMCs & Protection', val: subsSum },
+  ]
+  return (
+    <div className="mb-8 flex flex-wrap items-center justify-between gap-5 rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-indigo-100 px-7 py-6 shadow-sm">
+      <div>
+        <div className="text-sm font-bold uppercase tracking-wide text-primary">
+          Total Cost of Ownership
+        </div>
+        <div className="mt-1 text-4xl font-black tracking-tight text-indigo-900">
+          {formatMoney(tco)}
+        </div>
+        <div className="mt-1 text-sm text-muted-foreground">
+          {asset.name} ({asset.brand}) · Serial: {asset.serial_number || 'N/A'}
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-6">
+        {breakdown.map((item) => (
+          <div key={item.label} className="text-right">
+            <div className="text-xs font-semibold uppercase text-muted-foreground">
+              {item.label}
+            </div>
+            <div className="text-[1.125rem] font-bold text-foreground">
+              {formatMoney(item.val)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Timeline({
   assets,
   selectedAsset,
@@ -45,11 +84,7 @@ export default function Timeline({
   documents,
 }) {
   if (!selectedAsset) {
-    return (
-      <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center">
-        <p className="text-muted-foreground">No asset selected or no assets registered yet.</p>
-      </div>
-    )
+    return <EmptyState message="No asset selected or no assets registered yet." />
   }
 
   const assetRepairs = repairs.filter((r) => r.asset_id === selectedAsset.id)
@@ -65,69 +100,42 @@ export default function Timeline({
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-extrabold tracking-tight text-foreground">
-            Timeline
-          </h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">
+      <SectionHeader
+        title="Timeline"
+        subtitle={
+          <>
             Full history and total cost of ownership for{' '}
             <strong>{selectedAsset.name}</strong>.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">Switch Asset:</span>
-          <Select
-            value={selectedAsset.id}
-            onValueChange={(v) => setSelectedAsset(assets.find((a) => a.id === v))}
-          >
-            <SelectTrigger size="sm" className="w-auto min-w-[160px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {assets.map((a) => (
-                <SelectItem key={a.id} value={a.id}>
+          </>
+        }
+        action={
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold">Switch Asset:</span>
+            <Select
+              value={selectedAsset.id}
+              onValueChange={(v) => setSelectedAsset(assets.find((a) => a.id === v))}
+            >
+              <SelectTrigger size="sm" className="w-auto min-w-[160px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {assets.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
                   {a.name}
                 </SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+              </SelectContent>
+            </Select>
+          </div>
+        }
+      />
 
-      {/* TCO Banner */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-5 rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-indigo-100 px-7 py-6 shadow-sm">
-        <div>
-          <div className="text-sm font-bold uppercase tracking-wide text-primary">
-Total Cost of Ownership
-          </div>
-          <div className="mt-1 text-4xl font-black tracking-tight text-indigo-900">
-            ${tco.toLocaleString()}
-          </div>
-          <div className="mt-1 text-sm text-muted-foreground">
-            {selectedAsset.name} ({selectedAsset.brand}) · Serial:{' '}
-            {selectedAsset.serial_number || 'N/A'}
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-6">
-          {[
-            { label: 'Initial Purchase', val: Number(selectedAsset.purchase_price || 0) },
-            { label: 'Repairs & Maintenance', val: repairSum },
-            { label: 'AMCs & Protection', val: subsSum },
-          ].map((item) => (
-            <div key={item.label} className="text-right">
-              <div className="text-xs font-semibold uppercase text-muted-foreground">
-                {item.label}
-              </div>
-              <div className="text-[1.125rem] font-bold text-foreground">
-                ${item.val.toLocaleString()}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <TcoBanner
+        asset={selectedAsset}
+        tco={tco}
+        repairSum={repairSum}
+        subsSum={subsSum}
+      />
 
       {/* Timeline Feed */}
       <div className="mx-auto max-w-[860px] rounded-xl border border-border bg-card p-8 shadow-sm">
@@ -144,7 +152,7 @@ Total Cost of Ownership
             Purchased from {selectedAsset.store_vendor || 'Authorized Vendor'}. Initial capital expenditure.
           </div>
           <span className="inline-block rounded-md bg-primary/10 px-2.5 py-1 text-[0.8125rem] font-bold text-primary">
-            + ${Number(selectedAsset.purchase_price || 0).toLocaleString()}
+            + {formatMoney(selectedAsset.purchase_price || 0)}
           </span>
         </TimelineItem>
 
@@ -177,7 +185,7 @@ Total Cost of Ownership
               Billing cadence: {sub.billing_cycle} · Next scheduled renewal: {sub.next_renewal_date}
             </div>
             <span className="inline-block rounded-md bg-primary/10 px-2.5 py-1 text-[0.8125rem] font-bold text-primary">
-              + ${sub.cost} / {sub.billing_cycle.toLowerCase()}
+              + {formatMoney(sub.cost)} / {sub.billing_cycle.toLowerCase()}
             </span>
           </TimelineItem>
         ))}
@@ -196,7 +204,7 @@ Total Cost of Ownership
               Notes: {rep.technician_notes || 'Service performed as scheduled.'}
             </div>
             <span className="inline-block rounded-md bg-primary/10 px-2.5 py-1 text-[0.8125rem] font-bold text-primary">
-              + ${rep.total_cost || (Number(rep.labor_cost || 0) + Number(rep.parts_cost || 0))} (Labor: ${rep.labor_cost || 0}, Parts: ${rep.parts_cost || 0})
+              + {formatMoney(rep.total_cost || (Number(rep.labor_cost || 0) + Number(rep.parts_cost || 0)))} (Labor: {formatMoney(rep.labor_cost || 0)}, Parts: {formatMoney(rep.parts_cost || 0)})
             </span>
           </TimelineItem>
         ))}
@@ -212,7 +220,7 @@ Total Cost of Ownership
               Manufacturer Warranty Expiration Threshold
             </div>
             <div className="text-sm text-muted-foreground">
-              End of standard coverage. LifeHub alerts 30 days and 7 days prior to ensure uninterrupted AMC coverage.
+              End of standard coverage. LifeDesk alerts 30 days and 7 days prior to ensure uninterrupted AMC coverage.
             </div>
           </TimelineItem>
         )}

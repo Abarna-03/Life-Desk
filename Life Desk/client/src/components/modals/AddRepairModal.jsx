@@ -114,7 +114,7 @@ export default function AddRepairModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="repair-labor">Labor Cost ($)</Label>
+              <Label htmlFor="repair-labor">Labor Cost (₹)</Label>
               <Input
                 id="repair-labor"
                 type="number"
@@ -124,7 +124,7 @@ export default function AddRepairModal({
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="repair-parts">Parts Cost ($)</Label>
+              <Label htmlFor="repair-parts">Parts Cost (₹)</Label>
               <Input
                 id="repair-parts"
                 type="number"

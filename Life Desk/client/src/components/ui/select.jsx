@@ -13,7 +13,7 @@ function SelectTrigger({ className, children, size = 'default', ...props }) {
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       className={cn(
-        'flex w-full items-center justify-between gap-2 rounded-md border border-input bg-card px-3 py-2 text-sm shadow-sm transition-colors',
+        'flex w-full items-center justify-between gap-2 rounded-[4px] border border-input bg-card px-3 py-2 text-sm shadow-sm transition-colors',
         'data-[placeholder]:text-muted-foreground [&>span]:line-clamp-1',
         'focus:outline-none focus:border-ring focus:ring-[3px] focus:ring-ring/15',
         'disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer',
@@ -36,7 +36,7 @@ function SelectContent({ className, children, position = 'popper', ...props }) {
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md',
+          'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-[8px] border border-border bg-popover text-popover-foreground shadow-md',
           'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
           position === 'popper' &&
             'data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1',

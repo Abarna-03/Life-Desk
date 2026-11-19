@@ -1,46 +1,88 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import '@fontsource-variable/bricolage-grotesque';
 
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================
-   LifeDesk — warm theme tokens mapped to shadcn/ui
-   Indigo primary (#4f46e5) · warm off-white canvas · teal accent
+   LifeDesk — slate-blue canvas with a brass accent.
+   Bricolage Grotesque headings · automatic light/dark.
    ============================================================ */
 :root {
-  --radius: 1rem; /* soft, friendly rounding */
+  --radius: 1rem;
 
-  --background: #f7f6f3; /* warm off-white */
-  --foreground: #1c1917; /* warm near-black */
+  /* Light theme — white canvas with a dark charcoal for buttons/components */
+  --background: #ffffff; /* white panel */
+  --foreground: #16181d; /* near-black ink */
 
   --card: #ffffff;
-  --card-foreground: #1c1917;
+  --card-foreground: #16181d;
 
   --popover: #ffffff;
-  --popover-foreground: #1c1917;
+  --popover-foreground: #16181d;
 
-  --primary: #4f46e5; /* indigo */
+  --primary: #1b1f29; /* dark charcoal — buttons, active nav, accents */
   --primary-foreground: #ffffff;
 
-  --secondary: #f1f0ec;
-  --secondary-foreground: #1c1917;
+  --secondary: #f1f2f4;
+  --secondary-foreground: #16181d;
 
-  --muted: #f3f0ea;
-  --muted-foreground: #6b6560; /* warm grey */
+  --muted: #f2f3f5; /* light grey frame / muted surfaces */
+  --muted-foreground: #5c6270;
 
-  --accent: #ecfdf9; /* teal tint */
-  --accent-foreground: #0f766e;
+  --accent: #eceef1; /* light grey tint */
+  --accent-foreground: #1b1f29;
 
-  --destructive: #e11d48; /* rose */
+  --destructive: #bf3b2f;
   --destructive-foreground: #ffffff;
 
-  --border: #ebe7e0; /* warm border */
-  --input: #ebe7e0;
-  --ring: #4f46e5;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #1b1f29;
 
-  /* brand helpers used by gradients / chips */
-  --brand-indigo: #4f46e5;
-  --brand-teal: #0d9488;
+  /* brand accents used by gradients / highlights */
+  --brand-slate: #1b1f29;
+  --brand-brass: #9a7b33;
+
+  /* left sidebar — dark surface with light text (both themes) */
+  --sidebar: #1b1f29;
+  --sidebar-foreground: #b6bcc8;
+}
+
+.dark {
+  --background: #10131a; /* near-black slate */
+  --foreground: #e6e9f0;
+
+  --card: #181c26;
+  --card-foreground: #e6e9f0;
+
+  --popover: #181c26;
+  --popover-foreground: #e6e9f0;
+
+  --primary: #6a7cb0; /* lighter slate blue for dark */
+  --primary-foreground: #0f1218;
+
+  --secondary: #222735;
+  --secondary-foreground: #e6e9f0;
+
+  --muted: #222735;
+  --muted-foreground: #98a2b5;
+
+  --accent: #2b2a24; /* dim brass tint */
+  --accent-foreground: #d8bd87;
+
+  --destructive: #e06055;
+  --destructive-foreground: #0f1218;
+
+  --border: #2a3040;
+  --input: #2a3040;
+  --ring: #6a7cb0;
+
+  --brand-slate: #6a7cb0;
+  --brand-brass: #cBa461;
+
+  --sidebar: #161a22;
+  --sidebar-foreground: #9aa2b2;
 }
 
 @theme inline {
@@ -68,11 +110,15 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-brand-indigo: var(--brand-indigo);
-  --color-brand-teal: var(--brand-teal);
+  --color-brand-slate: var(--brand-slate);
+  --color-brand-brass: var(--brand-brass);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
 
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
+  --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque',
+    var(--font-sans);
 }
 
 @layer base {

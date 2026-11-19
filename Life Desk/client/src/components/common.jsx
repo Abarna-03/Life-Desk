@@ -16,7 +16,7 @@ export function SectionHeader({ title, subtitle, action, as: Heading = 'h2', cla
   return (
     <div className={cn('mb-6 flex flex-wrap items-center justify-between gap-4', className)}>
       <div>
-        <Heading className="text-xl font-extrabold tracking-tight text-foreground">
+        <Heading className="font-display text-xl font-extrabold tracking-tight text-foreground">
           {title}
         </Heading>
         {subtitle && <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>}
@@ -81,7 +81,7 @@ export function OverviewPill({ tone = 'blue', icon: Icon, count, label, onClick 
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-md cursor-pointer"
+      className="flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md cursor-pointer"
     >
       <div className={cn('flex items-center justify-center rounded-[0.625rem] p-2.5', PILL_ICON_TONES[tone])}>
         <Icon size={20} />
@@ -138,7 +138,7 @@ export function CardFooterBar({ children, className }) {
   return (
     <div
       className={cn(
-        'flex items-center justify-between border-t border-border bg-stone-50 px-5 py-4',
+        'flex items-center justify-between border-t border-border bg-muted/40 px-5 py-4',
         className,
       )}
     >

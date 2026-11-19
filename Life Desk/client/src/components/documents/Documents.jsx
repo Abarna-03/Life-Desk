@@ -51,7 +51,7 @@ export default function Documents({ documents, setShowAddDocModal }) {
                   <p className="mt-1 text-[0.85rem] text-muted-foreground">
                     Linked Asset: <strong>{doc.asset_name || 'General'}</strong>
                   </p>
-                  <p className="mt-1 text-xs text-stone-400">
+                  <p className="mt-1 text-xs text-muted-foreground/70">
                     File: {doc.file_name} {doc.expiry_date ? `· Expiry: ${doc.expiry_date}` : ''}
                   </p>
                 </div>

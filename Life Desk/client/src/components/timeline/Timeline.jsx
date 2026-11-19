@@ -18,7 +18,7 @@ function TimelineItem({ dotColor, last, children }) {
     <div
       className={cn(
         'relative border-l-2 pb-8 pl-11',
-        last ? 'border-transparent pb-0' : 'border-stone-200',
+        last ? 'border-transparent pb-0' : 'border-border',
       )}
     >
       <span
@@ -46,12 +46,12 @@ function TcoBanner({ asset, tco, repairSum, subsSum }) {
     { label: 'AMCs & Protection', val: subsSum },
   ]
   return (
-    <div className="mb-8 flex flex-wrap items-center justify-between gap-5 rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-indigo-100 px-7 py-6 shadow-sm">
+    <div className="mb-8 flex flex-wrap items-center justify-between gap-5 rounded-xl border border-primary/20 bg-primary/5 px-7 py-6 shadow-sm">
       <div>
-        <div className="text-sm font-bold uppercase tracking-wide text-primary">
+        <div className="text-sm font-bold uppercase tracking-wide text-brand-brass">
           Total Cost of Ownership
         </div>
-        <div className="mt-1 text-4xl font-black tracking-tight text-indigo-900">
+        <div className="mt-1 font-display text-4xl font-black tracking-tight text-foreground">
           {formatMoney(tco)}
         </div>
         <div className="mt-1 text-sm text-muted-foreground">
@@ -167,7 +167,7 @@ export default function Timeline({
             <div className="mb-2 text-sm text-muted-foreground">
               File: {doc.file_name} · Securely saved in Documents.
             </div>
-            <span className="inline-block rounded-md bg-muted px-2.5 py-1 text-[0.8125rem] font-bold text-stone-600">
+            <span className="inline-block rounded-md bg-muted px-2.5 py-1 text-[0.8125rem] font-bold text-muted-foreground">
               Vault Record (No Cost)
             </span>
           </TimelineItem>

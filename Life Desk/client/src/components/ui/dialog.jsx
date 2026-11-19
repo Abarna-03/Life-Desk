@@ -31,7 +31,7 @@ function DialogContent({ className, children, ...props }) {
         data-slot="dialog-content"
         className={cn(
           'fixed left-1/2 top-1/2 z-50 grid w-full max-w-[540px] -translate-x-1/2 -translate-y-1/2 gap-5',
-          'max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card p-8 shadow-lg',
+          'max-h-[90vh] overflow-y-auto rounded-[8px] border border-border bg-card p-8 shadow-lg',
           'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
           className,
         )}
@@ -62,7 +62,7 @@ function DialogFooter({ className, ...props }) {
     <div
       data-slot="dialog-footer"
       className={cn(
-        'flex flex-col-reverse gap-2 sm:flex-row sm:justify-end',
+        'flex flex-col-reverse gap-2 sm:flex-row sm:justify-between',
         className,
       )}
       {...props}
@@ -74,7 +74,7 @@ function DialogTitle({ className, ...props }) {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn('text-xl font-extrabold tracking-tight', className)}
+      className={cn('font-display text-xl font-extrabold tracking-tight', className)}
       {...props}
     />
   )

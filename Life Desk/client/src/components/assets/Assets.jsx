@@ -186,7 +186,7 @@ export default function Assets({
                   <div
                     className={cn(
                       'rounded-lg border border-border bg-muted px-3 py-2 text-[0.8125rem]',
-                      isExpiringSoon ? 'text-amber-700' : 'text-stone-600',
+                      isExpiringSoon ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground',
                     )}
                   >
                     <strong>Warranty Status:</strong>{' '}

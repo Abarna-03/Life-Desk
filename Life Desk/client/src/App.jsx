@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 // Components
 import AuthScreen from './components/auth/AuthScreen';
-import Header from './components/layout/Header';
-import NavTabs from './components/layout/NavTabs';
+import Sidebar from './components/layout/Sidebar';
 import Dashboard from './components/dashboard/Dashboard';
 import Assets from './components/assets/Assets';
 import Timeline from './components/timeline/Timeline';
@@ -29,7 +28,6 @@ export default function App() {
   const [documents, setDocuments] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [selectedAsset, setSelectedAsset] = useState(null);
-  const [backendConnected, setBackendConnected] = useState(false);
 
   // ===== Auth state =====
   const [token, setToken] = useState(() => localStorage.getItem('ld_token') || '');
@@ -137,10 +135,9 @@ export default function App() {
           setSubscriptions(Array.isArray(dataSubs) ? dataSubs : []);
           setRepairs(Array.isArray(dataMaint) ? dataMaint : []);
           setDocuments(Array.isArray(dataDocs) ? dataDocs : []);
-          setBackendConnected(true);
         }
       } catch (err) {
-        setBackendConnected(false);
+        // backend unreachable — keep local state
       }
     }
     if (token) {
@@ -463,9 +460,13 @@ export default function App() {
   const handleAddTask = (e) => {
     e.preventDefault();
     if (!newTask.title) return;
-    setTasks([{ id: `t_${Date.now()}`, ...newTask }, ...tasks]);
+    setTasks([{ id: `t_${Date.now()}`, done: false, ...newTask }, ...tasks]);
     setShowAddTaskModal(false);
     setNewTask({ room: 'Home Office', title: '', due: 'Due in 7 days', priority: 'Normal' });
+  };
+
+  const handleToggleTask = (id) => {
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
   };
 
   // If user is not logged in, render clean AuthScreen
@@ -492,42 +493,42 @@ export default function App() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Top Header */}
-      <Header
-        backendConnected={backendConnected}
+    <div className="flex min-h-screen flex-col bg-muted lg:flex-row">
+      {/* Left Sidebar navigation */}
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        counts={{
+          assets: assets.length,
+          subscriptions: subscriptions.length,
+          repairs: repairs.length,
+          documents: documents.length,
+        }}
         currentUser={currentUser}
         onLogout={handleLogout}
       />
 
-      {/* Navigation Tabs */}
-      <NavTabs
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        assetsCount={assets.length}
-        subscriptionsCount={subscriptions.length}
-        repairsCount={repairs.length}
-        documentsCount={documents.length}
-      />
-
-      {/* Main Content Area */}
-      <main className="mx-auto w-full max-w-[1400px] flex-1 px-6 py-7">
-        {activeTab === 'dashboard' && (
-          <Dashboard
-            assets={assets}
-            subscriptions={subscriptions}
-            repairs={repairs}
-            documents={documents}
-            tasks={tasks}
-            totalAssetValue={totalAssetValue}
-            monthlyRecurring={monthlyRecurring}
-            totalRepairsCost={totalRepairsCost}
-            setActiveTab={setActiveTab}
-            setSelectedAsset={setSelectedAsset}
-            setShowAddAssetModal={setShowAddAssetModal}
-            setShowAddTaskModal={setShowAddTaskModal}
-          />
-        )}
+      {/* Main column — framed panel on the right */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden border-border bg-background shadow-sm lg:m-3 lg:rounded-2xl lg:border">
+        <main className="mx-auto w-full max-w-[1200px] flex-1 px-6 py-7">
+          {activeTab === 'dashboard' && (
+            <Dashboard
+              assets={assets}
+              subscriptions={subscriptions}
+              repairs={repairs}
+              documents={documents}
+              tasks={tasks}
+              currentUser={currentUser}
+              totalAssetValue={totalAssetValue}
+              monthlyRecurring={monthlyRecurring}
+              totalRepairsCost={totalRepairsCost}
+              setActiveTab={setActiveTab}
+              setSelectedAsset={setSelectedAsset}
+              setShowAddAssetModal={setShowAddAssetModal}
+              setShowAddTaskModal={setShowAddTaskModal}
+              onToggleTask={handleToggleTask}
+            />
+          )}
 
         {activeTab === 'assets' && (
           <Assets
@@ -585,7 +586,8 @@ export default function App() {
             totalRepairsCost={totalRepairsCost}
           />
         )}
-      </main>
+        </main>
+      </div>
 
       {/* Modals */}
       <AddAssetModal

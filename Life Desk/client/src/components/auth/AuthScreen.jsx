@@ -57,7 +57,7 @@ export default function AuthScreen({
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-background to-teal-50 p-6">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 via-background to-slate-200 p-6 dark:from-slate-900 dark:via-background dark:to-amber-950/40">
       <div className="w-full max-w-[420px] rounded-2xl border border-border bg-card p-9 shadow-lg">
         {/* Brand */}
         <div className="mb-6 flex justify-center">

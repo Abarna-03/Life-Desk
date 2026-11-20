@@ -2,43 +2,42 @@
 
 LifeDesk is a single combined app: the Express server serves both the built
 React frontend and the `/api` routes, backed by PostgreSQL. This deploys as
-**one web service + one managed database** on Render.
+**one Render web service** using an external **Neon** Postgres database.
 
 ## Prerequisites
 - The code pushed to a GitHub repo (branch: `new-theme-development`).
 - A free [Render](https://render.com) account.
+- A [Neon](https://neon.tech) Postgres database (connection string ready). The
+  schema is already created by `npm run migrate`.
 
 ## One-time deploy (Blueprint — recommended)
 
 1. Push this repo to GitHub.
 2. In Render: **New +** → **Blueprint**.
 3. Select your repo and the `new-theme-development` branch.
-4. Render reads [`render.yaml`](./render.yaml) and shows two resources:
-   - **lifedesk** — the Node web service (app + API)
-   - **lifedesk-db** — a PostgreSQL database
-5. Click **Apply**. Render will:
-   - provision the database,
-   - run the build (`npm install` + `vite build`),
-   - run migrations and start the server.
-6. When it's live, open the service URL (e.g. `https://lifedesk.onrender.com`).
-   Create an account and start adding assets.
-
-`DATABASE_URL` and `JWT_SECRET` are wired automatically by the Blueprint — you
-don't set them by hand.
+4. Render reads [`render.yaml`](./render.yaml) and shows the **lifedesk** web service.
+5. When prompted, paste your **Neon connection string** into `DATABASE_URL`
+   (it is deliberately not stored in the repo). `JWT_SECRET` is auto-generated.
+6. Click **Apply**. Render will build the app, run migrations, and start the server.
+7. When it's live, open the service URL (e.g. `https://lifedesk.onrender.com`),
+   create an account, and start adding assets.
 
 ## Manual setup (without the Blueprint)
 
-1. **Database:** New + → PostgreSQL (free). Copy its **Internal Database URL**.
-2. **Web service:** New + → Web Service → connect the repo. Set:
+1. **Web service:** New + → Web Service → connect the repo. Set:
    - **Root Directory:** `Life Desk`
    - **Build Command:** `npm --prefix server install && npm --prefix client install && npm --prefix client run build`
    - **Start Command:** `npm --prefix server run migrate && npm --prefix server run start`
    - **Health Check Path:** `/api/health`
    - **Environment variables:**
-     - `DATABASE_URL` = the Internal Database URL from step 1
+     - `DATABASE_URL` = your Neon connection string (`postgresql://…?sslmode=require`)
      - `JWT_SECRET` = any long random string
      - `NODE_ENV` = `production`
-3. Deploy.
+2. Deploy.
+
+> The Neon string has `-pooler` in the host, which uses Neon's connection
+> pooler — the right choice for a hosted app. SSL is handled automatically by
+> `db.js` (`ssl: { rejectUnauthorized: false }`).
 
 ## Notes
 - **First request may be slow** on the free tier — services spin down when idle

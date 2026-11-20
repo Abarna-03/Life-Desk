@@ -1,14 +1,11 @@
 # Render Blueprint — deploys LifeDesk as a single combined web service
-# (Express serves the built React app + the /api routes) plus a managed
-# PostgreSQL database. Push this repo to GitHub, then in Render:
+# (Express serves the built React app + the /api routes). The database is an
+# external Neon Postgres, so no Render database is provisioned here.
+#
+# Push this repo to GitHub, then in Render:
 #   New +  ->  Blueprint  ->  pick this repo  ->  Apply.
-# Render reads this file, provisions both resources, and wires DATABASE_URL.
-
-databases:
-  - name: lifedesk-db
-    databaseName: lifedesk
-    user: lifedesk
-    plan: free
+# During Apply, Render will prompt for DATABASE_URL — paste your Neon
+# connection string (it is intentionally NOT stored in this file).
 
 services:
   - type: web
@@ -26,11 +23,10 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      # Connection string from the managed database above (SSL handled in db.js).
+      # External Neon Postgres connection string. Set this in the Render
+      # dashboard at deploy time — it is a secret and must not be committed.
       - key: DATABASE_URL
-        fromDatabase:
-          name: lifedesk-db
-          property: connectionString
+        sync: false
       # Auto-generated secret for signing JWTs.
       - key: JWT_SECRET
         generateValue: true

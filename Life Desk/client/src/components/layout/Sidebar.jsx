@@ -1,10 +1,19 @@
 import React from 'react'
-import { LayoutGrid, Home, Clock, CreditCard, Wrench, FileText, BarChart2, LogOut } from 'lucide-react'
+import {
+  LayoutGrid,
+  BarChart2,
+  Clock,
+  Home,
+  CreditCard,
+  Wrench,
+  FileText,
+  House,
+  LogOut,
+} from 'lucide-react'
 
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import ThemeToggle from '@/components/layout/ThemeToggle'
 import { cn } from '@/lib/utils'
-import logo from '@/assets/lifedesk-logo-trim.png'
 
 export default function Sidebar({
   activeTab,
@@ -13,14 +22,24 @@ export default function Sidebar({
   currentUser,
   onLogout,
 }) {
-  const items = [
-    { key: 'dashboard', label: 'Home', icon: LayoutGrid },
-    { key: 'assets', label: 'Assets', icon: Home, count: counts.assets },
-    { key: 'timeline', label: 'Timeline', icon: Clock },
-    { key: 'subscriptions', label: 'Subscriptions', icon: CreditCard, count: counts.subscriptions },
-    { key: 'repairs', label: 'Repairs', icon: Wrench, count: counts.repairs },
-    { key: 'documents', label: 'Documents', icon: FileText, count: counts.documents },
-    { key: 'analytics', label: 'Analytics', icon: BarChart2 },
+  const sections = [
+    {
+      label: 'Overview',
+      items: [
+        { key: 'dashboard', label: 'Home', icon: LayoutGrid },
+        { key: 'analytics', label: 'Analytics', icon: BarChart2 },
+        { key: 'timeline', label: 'Timeline', icon: Clock },
+      ],
+    },
+    {
+      label: 'Manage',
+      items: [
+        { key: 'assets', label: 'Assets', icon: Home, count: counts.assets },
+        { key: 'subscriptions', label: 'Subscriptions', icon: CreditCard, count: counts.subscriptions },
+        { key: 'repairs', label: 'Repairs', icon: Wrench, count: counts.repairs },
+        { key: 'documents', label: 'Documents', icon: FileText, count: counts.documents },
+      ],
+    },
   ]
 
   const name = currentUser?.name || currentUser?.email || 'You'
@@ -33,71 +52,90 @@ export default function Sidebar({
     .join('')
     .toUpperCase()
 
+  const renderItem = (item) => {
+    const Icon = item.icon
+    const isActive = activeTab === item.key
+    return (
+      <button
+        key={item.key}
+        type="button"
+        onClick={() => setActiveTab(item.key)}
+        className={cn(
+          'flex w-full shrink-0 items-center gap-3 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors cursor-pointer',
+          isActive
+            ? 'bg-sidebar-active font-semibold text-white'
+            : 'text-sidebar-foreground hover:bg-white/5 hover:text-white',
+        )}
+      >
+        <Icon size={18} className="shrink-0" />
+        <span className="flex-1 text-left">{item.label}</span>
+        {item.count != null && item.count > 0 && (
+          <span
+            className={cn(
+              'ml-auto rounded-full px-1.5 py-0.5 text-[0.68rem] font-bold tabular-nums',
+              isActive ? 'bg-white/15 text-white' : 'bg-white/10 text-sidebar-foreground',
+            )}
+          >
+            {item.count}
+          </span>
+        )}
+      </button>
+    )
+  }
+
   return (
-    <aside className="sticky top-0 z-40 flex shrink-0 items-center gap-3 border-b border-black/10 bg-sidebar px-3 py-2.5 text-sidebar-foreground lg:h-screen lg:w-60 lg:flex-col lg:items-stretch lg:gap-0 lg:border-b-0 lg:px-3 lg:py-4">
+    <aside className="sticky top-0 z-40 flex shrink-0 items-center gap-3 bg-sidebar px-3 py-2.5 text-sidebar-foreground lg:h-screen lg:w-64 lg:flex-col lg:items-stretch lg:gap-0 lg:px-3 lg:py-5">
       {/* Brand */}
-      <div className="shrink-0 lg:mb-4 lg:border-b lg:border-white/10 lg:px-2 lg:pb-4">
-        <img src={logo} alt="LifeDesk" className="h-9 w-auto object-contain lg:h-11" />
+      <div className="flex shrink-0 items-center gap-2.5 px-2 lg:mb-6">
+        <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <House size={18} />
+        </span>
+        <span className="font-display text-lg font-extrabold tracking-tight text-white">
+          LifeDesk
+        </span>
       </div>
 
-      {/* Nav */}
-      <nav className="flex flex-1 gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
-        {items.map((item) => {
-          const Icon = item.icon
-          const isActive = activeTab === item.key
-          return (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => setActiveTab(item.key)}
-              className={cn(
-                'flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold transition-colors cursor-pointer lg:w-full',
-                isActive
-                  ? 'bg-white/15 text-white'
-                  : 'text-sidebar-foreground hover:bg-white/5 hover:text-white',
-              )}
-            >
-              <Icon size={18} className="shrink-0" />
-              <span className="lg:flex-1 lg:text-left">{item.label}</span>
-              {item.count != null && (
-                <span
-                  className={cn(
-                    'ml-auto rounded-full px-1.5 py-0.5 text-[0.68rem] font-bold tabular-nums',
-                    isActive ? 'bg-white/20 text-white' : 'bg-white/10 text-sidebar-foreground',
-                  )}
-                >
-                  {item.count}
-                </span>
-              )}
-            </button>
-          )
-        })}
+      {/* Nav sections */}
+      <nav className="flex flex-1 gap-1 overflow-x-auto lg:flex-col lg:gap-0 lg:overflow-visible">
+        {sections.map((section) => (
+          <div key={section.label} className="contents lg:mb-6 lg:block">
+            <div className="hidden px-3 pb-2 text-[0.68rem] font-bold uppercase tracking-wider text-sidebar-muted lg:block">
+              {section.label}
+            </div>
+            <div className="flex gap-1 lg:flex-col lg:gap-1">
+              {section.items.map(renderItem)}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* User + logout */}
-      <div className="flex shrink-0 items-center gap-2.5 lg:mt-auto lg:flex-col lg:items-stretch lg:gap-2 lg:border-t lg:border-white/10 lg:px-1 lg:pt-4">
-        {/* user row */}
-        <div className="flex min-w-0 items-center gap-2.5">
-          <Avatar className="size-9 shrink-0">
-            {avatarUrl && <AvatarImage src={avatarUrl} alt={name} />}
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
-          <div className="hidden min-w-0 flex-1 lg:block">
-            <div className="truncate text-sm font-bold text-white">{currentUser?.name || 'You'}</div>
-            <div className="truncate text-xs text-sidebar-foreground/70">{currentUser?.email}</div>
+      <div className="flex shrink-0 items-center gap-2.5 lg:mt-auto lg:border-t lg:border-white/10 lg:px-1 lg:pt-4">
+        <Avatar className="size-9 shrink-0">
+          {avatarUrl && <AvatarImage src={avatarUrl} alt={name} />}
+          <AvatarFallback className="bg-white/10 text-sm font-bold text-white">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+        <button
+          type="button"
+          onClick={onLogout}
+          className="hidden min-w-0 flex-1 text-left lg:block cursor-pointer"
+          title="Sign out"
+        >
+          <div className="truncate text-sm font-bold text-white">{currentUser?.name || 'You'}</div>
+          <div className="flex items-center gap-1 text-xs text-sidebar-foreground transition-colors hover:text-red-300">
+            <LogOut size={12} /> Sign out
           </div>
-          <ThemeToggle />
-        </div>
-
-        {/* sign out */}
+        </button>
+        <ThemeToggle />
         <button
           type="button"
           onClick={onLogout}
           title="Sign out"
-          className="flex shrink-0 items-center justify-center gap-2 rounded-[8px] px-2.5 py-2 text-sm font-semibold text-sidebar-foreground transition-colors hover:bg-red-500/20 hover:text-red-300 cursor-pointer lg:w-full lg:justify-start lg:border lg:border-white/10 lg:px-3"
+          className="flex shrink-0 items-center justify-center rounded-lg p-2 text-sidebar-foreground transition-colors hover:bg-white/10 hover:text-white cursor-pointer lg:hidden"
         >
           <LogOut size={17} />
-          <span className="hidden lg:inline">Sign out</span>
         </button>
       </div>
     </aside>

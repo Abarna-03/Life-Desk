@@ -33,12 +33,13 @@ export default function AddSubscriptionModal({
   setNewSub,
   assets,
   onSubmit,
+  isEdit = false,
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add a subscription</DialogTitle>
+          <DialogTitle>{isEdit ? 'Edit subscription' : 'Add a subscription'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-5">
@@ -140,7 +141,7 @@ export default function AddSubscriptionModal({
             <Button type="button" variant="secondary" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Save Subscription</Button>
+            <Button type="submit">{isEdit ? 'Save Changes' : 'Save Subscription'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

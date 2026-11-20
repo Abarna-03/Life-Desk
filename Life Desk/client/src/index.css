@@ -5,84 +5,88 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================
-   LifeDesk — slate-blue canvas with a brass accent.
-   Bricolage Grotesque headings · automatic light/dark.
+   LifeDesk — light grey canvas, white cards, deep indigo accent.
+   Light sidebar · Bricolage Grotesque headings · light/dark.
    ============================================================ */
 :root {
-  --radius: 1rem;
+  --radius: 0.75rem;
 
-  /* Light theme — white canvas with a dark charcoal for buttons/components */
-  --background: #ffffff; /* white panel */
-  --foreground: #16181d; /* near-black ink */
+  /* Light theme — soft grey canvas, white cards, blue brand, dark sidebar */
+  --background: #ffffff; /* white card surfaces */
+  --foreground: #0f172a; /* near-black slate ink */
 
   --card: #ffffff;
-  --card-foreground: #16181d;
+  --card-foreground: #0f172a;
 
   --popover: #ffffff;
-  --popover-foreground: #16181d;
+  --popover-foreground: #0f172a;
 
-  --primary: #1b1f29; /* dark charcoal — buttons, active nav, accents */
+  --primary: #2563eb; /* blue — buttons, active nav, accents */
   --primary-foreground: #ffffff;
 
-  --secondary: #f1f2f4;
-  --secondary-foreground: #16181d;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
 
-  --muted: #f2f3f5; /* light grey frame / muted surfaces */
-  --muted-foreground: #5c6270;
+  --muted: #f1f5f9; /* grey app canvas / muted surfaces */
+  --muted-foreground: #64748b;
 
-  --accent: #eceef1; /* light grey tint */
-  --accent-foreground: #1b1f29;
+  --accent: #eff6ff; /* blue-50 tint for active/hover */
+  --accent-foreground: #2563eb;
 
-  --destructive: #bf3b2f;
+  --destructive: #dc2626;
   --destructive-foreground: #ffffff;
 
   --border: #e5e7eb;
   --input: #e5e7eb;
-  --ring: #1b1f29;
+  --ring: #2563eb;
 
   /* brand accents used by gradients / highlights */
-  --brand-slate: #1b1f29;
-  --brand-brass: #9a7b33;
+  --brand-slate: #2563eb;
+  --brand-brass: #3b82f6;
 
-  /* left sidebar — dark surface with light text (both themes) */
-  --sidebar: #1b1f29;
-  --sidebar-foreground: #b6bcc8;
+  /* left sidebar — dark navy with slate text (both themes) */
+  --sidebar: #171b28;
+  --sidebar-foreground: #94a3b8;
+  --sidebar-muted: #6b7489;
+  --sidebar-active: #242b3d;
 }
 
 .dark {
-  --background: #10131a; /* near-black slate */
+  --background: #141824; /* card surface */
   --foreground: #e6e9f0;
 
-  --card: #181c26;
+  --card: #1a1f2e;
   --card-foreground: #e6e9f0;
 
-  --popover: #181c26;
+  --popover: #1a1f2e;
   --popover-foreground: #e6e9f0;
 
-  --primary: #6a7cb0; /* lighter slate blue for dark */
-  --primary-foreground: #0f1218;
+  --primary: #3b82f6; /* blue for dark */
+  --primary-foreground: #ffffff;
 
-  --secondary: #222735;
+  --secondary: #232a3a;
   --secondary-foreground: #e6e9f0;
 
-  --muted: #222735;
-  --muted-foreground: #98a2b5;
+  --muted: #0f131d; /* darker app canvas */
+  --muted-foreground: #94a3b8;
 
-  --accent: #2b2a24; /* dim brass tint */
-  --accent-foreground: #d8bd87;
+  --accent: #1e293b; /* dim blue tint */
+  --accent-foreground: #bfdbfe;
 
-  --destructive: #e06055;
+  --destructive: #ef4444;
   --destructive-foreground: #0f1218;
 
   --border: #2a3040;
   --input: #2a3040;
-  --ring: #6a7cb0;
+  --ring: #3b82f6;
 
-  --brand-slate: #6a7cb0;
-  --brand-brass: #cBa461;
+  --brand-slate: #3b82f6;
+  --brand-brass: #60a5fa;
 
-  --sidebar: #161a22;
-  --sidebar-foreground: #9aa2b2;
+  --sidebar: #11141f;
+  --sidebar-foreground: #94a3b8;
+  --sidebar-muted: #6b7489;
+  --sidebar-active: #1e2436;
 }
 
 @theme inline {
@@ -114,6 +118,8 @@
   --color-brand-brass: var(--brand-brass);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-active: var(--sidebar-active);
 
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;

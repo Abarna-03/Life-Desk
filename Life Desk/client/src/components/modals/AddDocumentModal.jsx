@@ -33,12 +33,13 @@ export default function AddDocumentModal({
   setNewDoc,
   assets,
   onSubmit,
+  isEdit = false,
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Document</DialogTitle>
+          <DialogTitle>{isEdit ? 'Edit Document' : 'Add Document'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-5">
@@ -107,7 +108,7 @@ export default function AddDocumentModal({
             <Button type="button" variant="secondary" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Vault Document</Button>
+            <Button type="submit">{isEdit ? 'Save Changes' : 'Vault Document'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

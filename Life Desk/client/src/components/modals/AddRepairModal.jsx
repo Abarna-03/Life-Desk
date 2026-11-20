@@ -24,6 +24,8 @@ const SERVICE_TYPES = [
   { value: 'Inspection', label: 'Inspection / Safety Check' },
 ]
 
+const STATUSES = ['Reported', 'Scheduled', 'In Progress', 'Completed', 'Cancelled']
+
 export default function AddRepairModal({
   isOpen,
   onClose,
@@ -31,12 +33,13 @@ export default function AddRepairModal({
   setNewRepair,
   assets,
   onSubmit,
+  isEdit = false,
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Log Service / Repair</DialogTitle>
+          <DialogTitle>{isEdit ? 'Edit Service / Repair' : 'Log Service / Repair'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-5">
@@ -112,6 +115,27 @@ export default function AddRepairModal({
             />
           </div>
 
+          {isEdit && (
+            <div className="flex flex-col gap-1.5">
+              <Label>Status</Label>
+              <Select
+                value={newRepair.status || 'Reported'}
+                onValueChange={(v) => setNewRepair({ ...newRepair, status: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="repair-labor">Labor Cost (₹)</Label>
@@ -139,7 +163,7 @@ export default function AddRepairModal({
             <Button type="button" variant="secondary" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Record Service</Button>
+            <Button type="submit">{isEdit ? 'Save Changes' : 'Record Service'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

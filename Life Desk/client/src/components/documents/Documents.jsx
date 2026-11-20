@@ -1,5 +1,5 @@
 import React from 'react'
-import { Plus, FileText, ExternalLink } from 'lucide-react'
+import { Plus, FileText, ExternalLink, Pencil, Trash2 } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,7 +12,7 @@ import {
 } from '@/components/common'
 import { prettyType } from '@/utils/formatters'
 
-export default function Documents({ documents, setShowAddDocModal }) {
+export default function Documents({ documents, setShowAddDocModal, onEditDoc, onDeleteDoc }) {
   return (
     <div>
       <SectionHeader
@@ -57,7 +57,6 @@ export default function Documents({ documents, setShowAddDocModal }) {
                 </div>
               </div>
               <CardFooterBar>
-                <Badge variant="success">Verified</Badge>
                 <Button
                   type="button"
                   variant="secondary"
@@ -66,6 +65,26 @@ export default function Documents({ documents, setShowAddDocModal }) {
                 >
                   <ExternalLink size={13} /> View File
                 </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => onEditDoc(doc)}
+                  >
+                    <Pencil size={13} /> Edit
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => onDeleteDoc(doc)}
+                    aria-label="Delete document"
+                  >
+                    <Trash2 size={14} />
+                  </Button>
+                </div>
               </CardFooterBar>
             </EntityCard>
           ))

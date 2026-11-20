@@ -1,5 +1,5 @@
 import React from 'react'
-import { Plus, User, Calendar } from 'lucide-react'
+import { Plus, User, Calendar, Pencil, Trash2 } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,7 @@ import {
 } from '@/components/common'
 import { formatMoney } from '@/utils/formatters'
 
-export default function Repairs({ repairs, setShowAddRepairModal }) {
+export default function Repairs({ repairs, setShowAddRepairModal, onEditRepair, onDeleteRepair }) {
   return (
     <div>
       <SectionHeader
@@ -71,14 +71,26 @@ export default function Repairs({ repairs, setShowAddRepairModal }) {
                 <span className="text-[0.8rem] text-muted-foreground">
                   Labor: {formatMoney(rep.labor_cost || 0)} · Parts: {formatMoney(rep.parts_cost || 0)}
                 </span>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => alert(`Showing history for ${rep.asset_name}`)}
-                >
-                  History
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => onEditRepair(rep)}
+                  >
+                    <Pencil size={13} /> Edit
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => onDeleteRepair(rep)}
+                    aria-label="Delete repair"
+                  >
+                    <Trash2 size={13} />
+                  </Button>
+                </div>
               </CardFooterBar>
             </EntityCard>
           ))

@@ -103,7 +103,7 @@ export function EntityCard({ children, className, ...props }) {
   return (
     <Card
       className={cn(
-        'justify-between gap-0 overflow-hidden p-0 transition-all hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md',
+        'justify-between gap-0 overflow-hidden p-0 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md',
         className,
       )}
       {...props}
@@ -116,7 +116,7 @@ export function EntityCard({ children, className, ...props }) {
 const TOP_BAR_TONES = {
   gold: 'bg-amber-100 text-amber-800 border-amber-200',
   green: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-  teal: 'bg-teal-50 text-teal-800 border-teal-200',
+  teal: 'bg-accent text-primary border-primary/15',
   gray: 'bg-muted text-muted-foreground border-border',
 }
 

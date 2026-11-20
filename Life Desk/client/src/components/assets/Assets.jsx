@@ -1,5 +1,5 @@
 import React from 'react'
-import { Plus, Search, X, Clock, Wrench } from 'lucide-react'
+import { Plus, Search, X, Clock, Wrench, Pencil, Trash2 } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -98,6 +98,8 @@ export default function Assets({
   setShowAddAssetModal,
   setNewRepair,
   setShowAddRepairModal,
+  onEditAsset,
+  onDeleteAsset,
 }) {
   const filteredAssets = assets.filter((a) => {
     const q = searchQuery.toLowerCase()
@@ -210,16 +212,39 @@ export default function Assets({
                   >
                     <Clock size={14} /> Timeline
                   </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => {
-                      setNewRepair((prev) => ({ ...prev, asset_id: asset.id }))
-                      setShowAddRepairModal(true)
-                    }}
-                  >
-                    <Wrench size={13} /> Report Issue
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => {
+                        setNewRepair((prev) => ({ ...prev, asset_id: asset.id }))
+                        setShowAddRepairModal(true)
+                      }}
+                    >
+                      <Wrench size={13} /> Report
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      className="size-8"
+                      onClick={() => onEditAsset(asset)}
+                      aria-label="Edit asset"
+                    >
+                      <Pencil size={14} />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => onDeleteAsset(asset)}
+                      aria-label="Delete asset"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </div>
                 </CardFooterBar>
               </EntityCard>
             )

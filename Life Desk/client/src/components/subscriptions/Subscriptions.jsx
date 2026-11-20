@@ -1,5 +1,5 @@
 import React from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Pencil, Trash2 } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,7 @@ import {
 } from '@/components/common'
 import { formatMoney } from '@/utils/formatters'
 
-export default function Subscriptions({ subscriptions, setShowAddSubModal }) {
+export default function Subscriptions({ subscriptions, setShowAddSubModal, onEditSub, onDeleteSub }) {
   return (
     <div>
       <SectionHeader
@@ -62,14 +62,26 @@ export default function Subscriptions({ subscriptions, setShowAddSubModal }) {
                 <Badge variant={sub.auto_renew ? 'success' : 'warning'}>
                   {sub.auto_renew ? 'Auto-Renew: ON' : 'Manual Payment'}
                 </Badge>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => alert(`Marked ${sub.name} for reminder notifications.`)}
-                >
-                  Set Reminder
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => onEditSub(sub)}
+                  >
+                    <Pencil size={13} /> Edit
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => onDeleteSub(sub)}
+                    aria-label="Delete subscription"
+                  >
+                    <Trash2 size={14} />
+                  </Button>
+                </div>
               </CardFooterBar>
             </EntityCard>
           ))

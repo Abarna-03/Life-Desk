@@ -21,12 +21,12 @@ import {
 const CATEGORIES = ['Electronics', 'Home Appliances', 'Vehicles', 'Home Hardware', 'Furniture']
 const ROOMS = ['Living Room', 'Kitchen', 'Home Office', 'Garage', 'Utility Room']
 
-export default function AddAssetModal({ isOpen, onClose, newAsset, setNewAsset, onSubmit }) {
+export default function AddAssetModal({ isOpen, onClose, newAsset, setNewAsset, onSubmit, isEdit = false }) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add an item</DialogTitle>
+          <DialogTitle>{isEdit ? 'Edit item' : 'Add an item'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-5">
@@ -151,7 +151,7 @@ export default function AddAssetModal({ isOpen, onClose, newAsset, setNewAsset, 
             <Button type="button" variant="secondary" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Save Asset</Button>
+            <Button type="submit">{isEdit ? 'Save Changes' : 'Save Asset'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -1,291 +1,341 @@
 import React from 'react'
-import {
-  Sparkles,
-  ArrowRight,
-  AlertTriangle,
-  Plus,
-  Calendar,
-  Clock,
-  Circle,
-  CheckCircle2,
-} from 'lucide-react'
+import { ChevronRight, Check, Circle } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { AlertBanner, EmptyState, SectionHeader } from '@/components/common'
 import { formatMoney } from '@/utils/formatters'
 import { cn } from '@/lib/utils'
 
-/* ---------- Prominent AI ask bar (preview only) ---------- */
-function AskBar() {
+const CATEGORY_COLORS = ['#2563eb', '#7c3aed', '#0ea5e9', '#f59e0b', '#64748b']
+
+/* ---------- Combined stat strip ---------- */
+function Stat({ label, value, sub, subClass }) {
   return (
-    <div className="mt-6 flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm ring-1 ring-primary/5">
-      <div className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-primary/10 px-3 py-1.5 text-sm font-bold text-primary">
-        <Sparkles size={16} /> Ask AI
+    <div className="flex flex-col gap-1 px-6 py-5">
+      <div className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="font-display text-3xl font-extrabold leading-none tracking-tight text-foreground">
+        {value}
       </div>
-      <Input
-        type="text"
-        className="h-auto flex-1 border-0 bg-transparent px-0 text-base shadow-none focus-visible:ring-0"
-        placeholder="Ask about your belongings, warranties, renewals or spending…"
-      />
-      <Button type="button" size="icon" variant="brand" className="rounded-full">
-        <ArrowRight size={16} />
-      </Button>
+      {sub && <div className={cn('text-sm text-muted-foreground', subClass)}>{sub}</div>}
     </div>
   )
 }
 
-/* ---------- A single stat tile ---------- */
-function StatTile({ label, value, className }) {
+/* ---------- Panel header ---------- */
+function PanelHeader({ title, subtitle, action }) {
   return (
-    <Card className={cn('justify-center gap-1 p-5', className)}>
-      <div className="font-display text-2xl font-extrabold tracking-tight text-foreground">
-        {value}
+    <div className="mb-5 flex items-start justify-between gap-3">
+      <div>
+        <h3 className="font-display text-base font-extrabold tracking-tight text-foreground">
+          {title}
+        </h3>
+        {subtitle && <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>}
       </div>
-      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        {label}
-      </div>
-    </Card>
+      {action}
+    </div>
   )
 }
 
-/* ---------- A compact asset card ---------- */
-function BelongingCard({ asset, onTimeline }) {
+/* ---------- Segmented distribution bar ---------- */
+function SegmentBar({ segments, total }) {
   return (
-    <Card className="gap-0 p-5">
-      <div className="mb-2 flex items-center justify-between">
-        <Badge variant="info">{asset.category}</Badge>
-        <Badge variant="success">{asset.location_room}</Badge>
-      </div>
-      <div className="text-[1.05rem] font-bold text-foreground">{asset.name}</div>
-      <div className="mb-3 mt-1 text-[0.8125rem] text-muted-foreground">
-        Brand: {asset.brand || 'N/A'} · Model: {asset.model_number || 'N/A'}
-      </div>
-      <div className="flex items-center justify-between border-t border-border pt-3">
-        <div className="text-[1.15rem] font-extrabold text-primary">
-          {formatMoney(asset.purchase_price)}
-        </div>
-        <Button type="button" variant="secondary" size="sm" onClick={onTimeline}>
-          <Clock size={14} /> Timeline
-        </Button>
-      </div>
-    </Card>
-  )
-}
-
-/* ---------- A single task row you can tick off ---------- */
-function TaskItem({ task, onToggle }) {
-  return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-5 py-3.5 shadow-sm transition-colors hover:border-primary/30">
-      <button
-        type="button"
-        onClick={() => onToggle(task.id)}
-        aria-label={task.done ? 'Mark task not done' : 'Mark task done'}
-        className="shrink-0 cursor-pointer text-muted-foreground transition-colors hover:text-primary"
-      >
-        {task.done ? (
-          <CheckCircle2 className="size-5 text-primary" />
-        ) : (
-          <Circle className="size-5" />
-        )}
-      </button>
-      <div className="min-w-0 flex-1">
+    <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-muted">
+      {segments.map((s) => (
         <div
-          className={cn(
-            'text-base font-bold text-foreground',
-            task.done && 'text-muted-foreground line-through',
-          )}
-        >
-          {task.title}
-        </div>
-        <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="font-semibold uppercase tracking-wide">{task.room}</span>
-          <span className="flex items-center gap-1 text-amber-600">
-            <Calendar size={12} /> {task.due}
-          </span>
-        </div>
-      </div>
-      <Badge variant={task.priority === 'Urgent' ? 'danger' : 'success'}>{task.priority}</Badge>
+          key={s.label}
+          className="h-full first:rounded-l-full last:rounded-r-full"
+          style={{ width: `${(s.value / (total || 1)) * 100}%`, backgroundColor: s.color }}
+          title={`${s.label}: ${s.value}`}
+        />
+      ))}
     </div>
   )
 }
 
 export default function Dashboard({
-  assets,
-  subscriptions,
-  tasks,
-  currentUser,
+  assets = [],
+  subscriptions = [],
+  repairs = [],
+  documents = [],
   totalAssetValue,
-  monthlyRecurring,
-  totalRepairsCost,
+  currentUser,
   setActiveTab,
   setSelectedAsset,
   setShowAddAssetModal,
-  setShowAddTaskModal,
-  onToggleTask,
 }) {
   const firstName = (currentUser?.name || currentUser?.email || 'there').split(' ')[0]
-  const activeProtected = assets.filter((a) => a.status === 'Active').length
-
   const now = new Date()
-  const in30Days = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-  const in7Days = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
-  const expiringWarranties = assets.filter((a) => {
+  const isCovered = (a) => {
     if (!a.warranty_expiry_date) return false
     const exp = new Date(a.warranty_expiry_date)
-    return exp >= now && exp <= in30Days
-  })
-  const upcomingRenewals = subscriptions.filter((s) => {
-    if (!s.next_renewal_date) return false
-    const ren = new Date(s.next_renewal_date)
-    return ren >= now && ren <= in7Days
-  })
-  const urgentCount = expiringWarranties.length + upcomingRenewals.length
+    return !Number.isNaN(exp.getTime()) && exp >= now
+  }
 
+  const coveredCount = assets.filter(isCovered).length
+  const notCoveredCount = assets.length - coveredCount
+  const protectedPct = assets.length ? Math.round((coveredCount / assets.length) * 100) : 0
   const assetWord = assets.length === 1 ? 'asset' : 'assets'
-  const contractWord = subscriptions.length === 1 ? 'contract' : 'contracts'
+
+  const categories = [...new Set(assets.map((a) => a.category).filter(Boolean))]
+
+  const attentionItem = [...assets]
+    .filter((a) => !isCovered(a))
+    .sort((a, b) => Number(b.purchase_price || 0) - Number(a.purchase_price || 0))[0]
+
+  const topAssets = [...assets]
+    .sort((a, b) => Number(b.purchase_price || 0) - Number(a.purchase_price || 0))
+    .slice(0, 6)
+
+  /* portfolio value split by category */
+  const byCategory = {}
+  assets.forEach((a) => {
+    const c = a.category || 'Other'
+    byCategory[c] = (byCategory[c] || 0) + Number(a.purchase_price || 0)
+  })
+  const portfolioSegments = Object.entries(byCategory)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([label, value], i) => ({ label, value, color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }))
+
+  const steps = [
+    { label: 'Register your first asset', done: assets.length > 0 },
+    { label: 'Add a subscription', done: subscriptions.length > 0 },
+    { label: 'Upload a document', done: documents.length > 0 },
+    { label: 'Log a repair', done: repairs.length > 0 },
+  ]
+  const stepsDone = steps.filter((s) => s.done).length
 
   return (
-    <div>
-      {/* Greeting + plain-language summary */}
-      <h1 className="font-display text-3xl font-extrabold tracking-tight text-foreground">
-        Welcome back, {firstName} <span className="align-middle">👋</span>
-      </h1>
-      <p className="mt-2 max-w-3xl text-lg leading-relaxed text-muted-foreground">
-        You own{' '}
-        <span className="font-bold text-foreground">
-          {assets.length} {assetWord}
-        </span>{' '}
-        worth <span className="font-bold text-brand-brass">{formatMoney(totalAssetValue)}</span>, with{' '}
-        <span className="font-bold text-brand-brass">
-          {formatMoney(Math.round(monthlyRecurring))}
-        </span>{' '}
-        a month going to{' '}
-        <span className="font-bold text-foreground">
-          {subscriptions.length} {contractWord}
-        </span>
-        , and <span className="font-bold text-brand-brass">{formatMoney(totalRepairsCost)}</span> spent
-        on repairs this year.
-      </p>
-
-      <AskBar />
-
-      {/* Hero split — big worth tile on the left, stat tiles on the right */}
-      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="flex flex-col justify-center gap-1.5 p-7">
-          <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Total worth
-          </div>
-          <div className="font-display text-5xl font-extrabold tracking-tight text-brand-brass">
-            {formatMoney(totalAssetValue)}
-          </div>
-          <div className="text-sm text-muted-foreground">
-            Across {assets.length} {assetWord}
-          </div>
-        </Card>
-
-        <div className="grid grid-cols-2 gap-4">
-          <StatTile label="Per month" value={formatMoney(Math.round(monthlyRecurring))} />
-          <StatTile label="Protected" value={`${activeProtected}`} />
-          <StatTile
-            label="Repairs this year"
-            value={formatMoney(totalRepairsCost)}
-            className="col-span-2"
-          />
-        </div>
+    <div className="space-y-6">
+      {/* Greeting */}
+      <div>
+        <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground">
+          Welcome back, {firstName}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          A summary of your assets, coverage and upcoming actions.
+        </p>
       </div>
 
-      {urgentCount > 0 && (
-        <AlertBanner
-          tone="amber"
-          icon={AlertTriangle}
-          title={`${urgentCount} thing${urgentCount > 1 ? 's' : ''} need your attention`}
-          className="mt-6"
-          action={
-            <Button type="button" size="sm" onClick={() => setActiveTab('subscriptions')}>
-              Review
-            </Button>
-          }
-        >
-          {expiringWarranties.map((a) => (
-            <div key={a.id}>
-              • <strong>{a.name}:</strong> warranty expires {a.warranty_expiry_date}.
-            </div>
-          ))}
-          {upcomingRenewals.map((s) => (
-            <div key={s.id}>
-              • <strong>{s.name}:</strong> {formatMoney(s.cost)} renewal due {s.next_renewal_date}.
-            </div>
-          ))}
-        </AlertBanner>
-      )}
+      {/* Combined stat strip */}
+      <Card className="grid grid-cols-2 gap-0 divide-border p-0 sm:grid-cols-4 sm:divide-x">
+        <Stat
+          label="Total asset value"
+          value={formatMoney(totalAssetValue)}
+          sub={`Across ${assets.length} registered ${assetWord}`}
+        />
+        <Stat
+          label="Total assets"
+          value={assets.length}
+          sub={categories.length ? categories.slice(0, 3).join(', ') : 'No categories yet'}
+        />
+        <Stat
+          label="Under warranty"
+          value={coveredCount}
+          sub={`${protectedPct}% of assets covered`}
+          subClass="font-semibold text-emerald-600"
+        />
+        <Stat
+          label="Action required"
+          value={<span className={notCoveredCount > 0 ? 'text-amber-600' : ''}>{notCoveredCount}</span>}
+          sub={notCoveredCount === 1 ? 'Asset without warranty' : 'Assets without warranty'}
+        />
+      </Card>
 
-      {/* Belongings + Coming up */}
-      <div className="mt-8 grid grid-cols-1 gap-7 lg:grid-cols-[1.2fr_1fr]">
-        <div>
-          <SectionHeader
-            as="h2"
-            title="Your belongings"
-            subtitle="Most valuable registered assets"
-            action={
-              <Button type="button" onClick={() => setShowAddAssetModal(true)}>
-                <Plus size={14} /> Add Asset
+      {/* ===== Main grid ===== */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* LEFT */}
+        <div className="space-y-6 lg:col-span-2">
+          {/* Attention */}
+          {attentionItem && (
+            <Card className="flex-row flex-wrap items-center justify-between gap-4 border-l-4 border-l-amber-400 p-5">
+              <div className="min-w-[240px] flex-1">
+                <h3 className="font-display text-base font-extrabold tracking-tight text-foreground">
+                  {attentionItem.name} has no warranty on record
+                </h3>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  This {formatMoney(attentionItem.purchase_price)} asset is currently unprotected. Add
+                  warranty details or set a reminder to avoid unexpected repair costs.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setSelectedAsset(attentionItem)
+                  setActiveTab('assets')
+                }}
+              >
+                Add warranty
               </Button>
-            }
-          />
-          <div className="flex flex-col gap-3.5">
-            {assets.length === 0 ? (
-              <EmptyState
-                className="p-8"
-                message={
-                  <p className="text-muted-foreground">
-                    No belongings yet. Click <strong>Add Asset</strong> to begin.
-                  </p>
-                }
-              />
+            </Card>
+          )}
+
+          {/* Asset register */}
+          <Card className="p-6">
+            <PanelHeader
+              title="Asset register"
+              subtitle="Your most valuable registered assets"
+              action={
+                <Button type="button" variant="outline" size="sm" onClick={() => setActiveTab('assets')}>
+                  View all
+                </Button>
+              }
+            />
+            {topAssets.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                No assets yet. Use <strong>Add asset</strong> to begin.
+              </p>
             ) : (
-              assets.slice(0, 3).map((asset) => (
-                <BelongingCard
-                  key={asset.id}
-                  asset={asset}
-                  onTimeline={() => {
-                    setSelectedAsset(asset)
-                    setActiveTab('timeline')
-                  }}
-                />
-              ))
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[560px] border-collapse text-sm">
+                    <thead>
+                      <tr className="border-b border-border text-left text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                        <th className="pb-3 pr-3 font-bold">Asset</th>
+                        <th className="pb-3 pr-3 font-bold">Category</th>
+                        <th className="pb-3 pr-3 font-bold">Room</th>
+                        <th className="pb-3 pr-3 text-right font-bold">Value</th>
+                        <th className="pb-3 text-right font-bold">Warranty</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {topAssets.map((a) => {
+                        const covered = isCovered(a)
+                        return (
+                          <tr
+                            key={a.id}
+                            onClick={() => {
+                              setSelectedAsset(a)
+                              setActiveTab('timeline')
+                            }}
+                            className="cursor-pointer border-b border-border/60 transition-colors last:border-0 hover:bg-muted/50"
+                          >
+                            <td className="py-3.5 pr-3 font-bold text-foreground">{a.name}</td>
+                            <td className="py-3.5 pr-3 text-muted-foreground">{a.category}</td>
+                            <td className="py-3.5 pr-3 text-muted-foreground">{a.location_room}</td>
+                            <td className="py-3.5 pr-3 text-right font-extrabold tabular-nums text-foreground">
+                              {formatMoney(a.purchase_price)}
+                            </td>
+                            <td className="py-3.5 text-right">
+                              <span className="inline-flex items-center justify-end gap-1">
+                                <Badge variant={covered ? 'success' : 'warning'}>
+                                  {covered ? 'Covered' : 'No warranty'}
+                                </Badge>
+                                <ChevronRight size={16} className="text-muted-foreground" />
+                              </span>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">
+                  Showing {topAssets.length} of {assets.length} {assetWord}
+                </div>
+              </>
             )}
-          </div>
+          </Card>
         </div>
 
-        <div>
-          <SectionHeader
-            as="h2"
-            title="Coming up"
-            subtitle="Tasks and reminders"
-            action={
-              <Button type="button" variant="secondary" size="sm" onClick={() => setShowAddTaskModal(true)}>
-                <Plus size={14} /> Add Task
-              </Button>
-            }
-          />
-          <div className="flex flex-col gap-3">
-            {tasks.length === 0 ? (
-              <EmptyState
-                className="p-8"
-                message={
-                  <p className="text-muted-foreground">
-                    Nothing scheduled. Click <strong>Add Task</strong> to add one.
-                  </p>
-                }
+        {/* RIGHT RAIL */}
+        <div className="space-y-6">
+          {/* Warranty coverage */}
+          <Card className="p-6">
+            <PanelHeader
+              title="Warranty coverage"
+              action={
+                <Badge variant="secondary" className="rounded-full">
+                  {assets.length} {assetWord}
+                </Badge>
+              }
+            />
+            <div className="mb-3 flex items-end gap-2">
+              <span className="font-display text-4xl font-extrabold leading-none tracking-tight text-foreground">
+                {protectedPct}%
+              </span>
+              <span className="pb-1 text-sm text-muted-foreground">of assets protected</span>
+            </div>
+            <div className="mb-4 h-2.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-emerald-500 transition-all"
+                style={{ width: `${protectedPct}%` }}
               />
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="flex items-center gap-2">
+                <span className="size-2.5 rounded-full bg-emerald-500" />
+                <span className="text-muted-foreground">
+                  Covered <strong className="text-foreground">{coveredCount}</strong>
+                </span>
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="size-2.5 rounded-full bg-slate-400" />
+                <span className="text-muted-foreground">
+                  No warranty <strong className="text-foreground">{notCoveredCount}</strong>
+                </span>
+              </span>
+            </div>
+          </Card>
+
+          {/* Portfolio by category */}
+          <Card className="p-6">
+            <PanelHeader title="Portfolio by category" />
+            {portfolioSegments.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Add assets to see your value split.</p>
             ) : (
-              tasks.map((t) => <TaskItem key={t.id} task={t} onToggle={onToggleTask} />)
+              <>
+                <SegmentBar segments={portfolioSegments} total={totalAssetValue} />
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+                  {portfolioSegments.map((s) => {
+                    const pct = Math.round((s.value / (totalAssetValue || 1)) * 100)
+                    return (
+                      <span key={s.label} className="flex items-center gap-2 text-sm">
+                        <span className="size-2.5 rounded-full" style={{ backgroundColor: s.color }} />
+                        <span className="text-muted-foreground">{s.label}</span>
+                        <strong className="text-foreground">{pct}%</strong>
+                      </span>
+                    )
+                  })}
+                </div>
+              </>
             )}
-          </div>
+          </Card>
+
+          {/* Setup progress */}
+          <Card className="p-6">
+            <PanelHeader
+              title="Setup progress"
+              action={
+                <span className="text-sm font-semibold text-muted-foreground">
+                  {stepsDone} of {steps.length}
+                </span>
+              }
+            />
+            <div className="mb-5 h-2 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all"
+                style={{ width: `${(stepsDone / steps.length) * 100}%` }}
+              />
+            </div>
+            <ul className="space-y-3">
+              {steps.map((s) => (
+                <li key={s.label} className="flex items-center gap-2.5 text-sm">
+                  {s.done ? (
+                    <Check size={16} className="shrink-0 text-emerald-600" />
+                  ) : (
+                    <Circle size={16} className="shrink-0 text-muted-foreground/40" />
+                  )}
+                  <span className={cn(s.done ? 'font-semibold text-emerald-600' : 'text-foreground')}>
+                    {s.label}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Card>
         </div>
       </div>
     </div>

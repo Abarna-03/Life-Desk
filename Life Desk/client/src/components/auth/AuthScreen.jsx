@@ -1,5 +1,5 @@
 import React from 'react'
-import { CheckCircle, AlertCircle, Sparkles, Mail } from 'lucide-react'
+import { CheckCircle, AlertCircle, Mail } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -324,12 +324,6 @@ export default function AuthScreen({
           )}
         </div>
 
-        {authMode === 'login' && (
-          <div className="mt-5 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-primary/5 p-2.5 text-xs text-muted-foreground">
-            <Sparkles size={13} /> Demo: <strong>demo@lifedesk.com</strong> /{' '}
-            <strong>password123</strong>
-          </div>
-        )}
       </div>
     </div>
   )

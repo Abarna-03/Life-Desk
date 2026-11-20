@@ -1,0 +1,18 @@
+{
+  "name": "lifedesk",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LifeDesk — run client and server together",
+  "scripts": {
+    "dev": "concurrently -n server,client -c cyan,magenta \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "start": "npm run build && npm --prefix server run start",
+    "build": "npm --prefix client run build",
+    "migrate": "npm --prefix server run migrate",
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

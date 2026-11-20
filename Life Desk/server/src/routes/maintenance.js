@@ -113,6 +113,9 @@ router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const {
+      title,
+      service_type,
+      service_provider_name,
       status,
       service_date,
       technician_notes,
@@ -122,20 +125,26 @@ router.put('/:id', async (req, res) => {
 
     const result = await pool.query(
       `UPDATE maintenance_records
-       SET status = COALESCE($1, status),
-           service_date = COALESCE($2, service_date),
-           technician_notes = COALESCE($3, technician_notes),
-           labor_cost = COALESCE($4, labor_cost),
-           parts_cost = COALESCE($5, parts_cost),
+       SET title = COALESCE($1, title),
+           service_type = COALESCE($2, service_type),
+           service_provider_name = COALESCE($3, service_provider_name),
+           status = COALESCE($4, status),
+           service_date = COALESCE($5, service_date),
+           technician_notes = COALESCE($6, technician_notes),
+           labor_cost = COALESCE($7, labor_cost),
+           parts_cost = COALESCE($8, parts_cost),
            updated_at = CURRENT_TIMESTAMP
-       WHERE id = $6
+       WHERE id = $9
        RETURNING *`,
       [
-        status,
-        service_date,
-        technician_notes,
-        labor_cost !== undefined ? Number(labor_cost) : undefined,
-        parts_cost !== undefined ? Number(parts_cost) : undefined,
+        title ?? null,
+        service_type ?? null,
+        service_provider_name ?? null,
+        status ?? null,
+        service_date ?? null,
+        technician_notes ?? null,
+        labor_cost !== undefined && labor_cost !== '' ? Number(labor_cost) : null,
+        parts_cost !== undefined && parts_cost !== '' ? Number(parts_cost) : null,
         id,
       ]
     );

@@ -96,6 +96,41 @@ router.post('/', async (req, res) => {
 });
 
 // DELETE /api/documents/:id
+// PUT /api/documents/:id - Update document metadata
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, document_type, asset_id, expiry_date } = req.body;
+
+    const result = await pool.query(
+      `UPDATE documents
+       SET title = COALESCE($1, title),
+           document_type = COALESCE($2, document_type),
+           asset_id = $3,
+           expiry_date = $4,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $5
+       RETURNING *`,
+      [
+        title ?? null,
+        document_type ?? null,
+        asset_id || null,
+        expiry_date || null,
+        id,
+      ]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating document:', err);
+    res.status(500).json({ message: 'Failed to update document' });
+  }
+});
+
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
